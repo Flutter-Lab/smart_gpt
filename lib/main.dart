@@ -9,8 +9,12 @@ import 'package:smart_gpt_ai/constants/constants.dart';
 import 'package:smart_gpt_ai/providers/chats_provider.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:smart_gpt_ai/screens/start_screen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  await Hive.openBox('chat_box');
   return runApp(
     DevicePreview(
       enabled: !kReleaseMode && !Platform.isAndroid,

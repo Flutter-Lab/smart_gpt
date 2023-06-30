@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/constants/constants.dart';
+import 'package:smart_gpt_ai/screens/history_screen.dart';
 import 'package:smart_gpt_ai/screens/home_screen.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
@@ -23,7 +24,8 @@ class _StartPageState extends State<StartPage> {
     final _allpages = [
       HomeScreen(),
       Center(child: TextWidget(label: 'Smart Task')),
-      Center(child: TextWidget(label: 'History')),
+      HistoryScreen(),
+      // Center(child: TextWidget(label: 'History')),
     ];
 
     return Scaffold(
