@@ -9,7 +9,6 @@ void main() {
   conversation.add({"msg": msg2, "index": 2});
   conWithTime.add({"conversation": conversation, "timeStamp": '12/12/2023'});
 
-  print(conversation);
+  print(conversation[0]["msg"]);
   print(conWithTime);
-  print('tamiz');
 }
