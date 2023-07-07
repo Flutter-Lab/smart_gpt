@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unrelated_type_equality_checks, must_be_immutable
+// , unrelated_type_equality_checks, must_be_immutable
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

@@ -21,11 +21,10 @@ class _StartPageState extends State<StartPage> {
   int _currentIndex = 0;
   @override
   Widget build(BuildContext context) {
-    final _allpages = [
+    final allpages = [
       HomeScreen(),
       Center(child: TextWidget(label: 'Smart Task')),
       HistoryScreen(),
-      // Center(child: TextWidget(label: 'History')),
     ];
 
     return Scaffold(
@@ -49,16 +48,17 @@ class _StartPageState extends State<StartPage> {
               ))
         ],
       ),
-      body: _allpages[_currentIndex],
+      body: allpages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: ColorPallate.bgColor,
         selectedItemColor: ColorPallate.textColor,
         unselectedItemColor: ColorPallate.light2,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Chat'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.file_open_outlined), label: 'Smart Task'),
-          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'History'),
+              icon: Icon(Icons.question_answer), label: 'Chat'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.tips_and_updates), label: 'Smart Task'),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
         ],
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,

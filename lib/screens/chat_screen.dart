@@ -1,14 +1,16 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, empty_catches, unrelated_type_equality_checks
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, empty_catches, unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_gpt_ai/hive/hive_model.dart';
 import 'package:smart_gpt_ai/providers/chats_provider.dart';
 import 'package:smart_gpt_ai/widgets/chat_widget.dart';
 import 'package:smart_gpt_ai/widgets/send_message_input_widget.dart';
 
 class ChatScreen extends StatelessWidget {
-  ChatScreen({super.key});
+  int? chatIndex;
+  ChatScreen({super.key, this.chatIndex});
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -23,8 +25,8 @@ class ChatScreen extends StatelessWidget {
           padding: const EdgeInsets.all(7.0),
           child: IconButton(
               icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context);
+              onPressed: () async {
+                goBack(chatProvider, context);
               }),
         ),
         title: Center(child: Text('Smart GPT AI')),
@@ -57,5 +59,24 @@ class ChatScreen extends StatelessWidget {
         ]),
       ),
     );
+  }
+
+  Future<void> goBack(ChatProvider chatProvider, BuildContext context) async {
+    {
+      var chatList = chatProvider.getCurrentModel;
+      List<Map<String, dynamic>> chatMapList = [];
+
+      for (var item in chatList) {
+        Map<String, dynamic> msg = {
+          'chatIndex': item.chatIndex,
+          'msg': item.msg
+        };
+        chatMapList.add(msg);
+      }
+
+      await ChatListHive.addChatToHiveDB(chatMapList, chatIndex);
+
+      Navigator.pop(context);
+    }
   }
 }

@@ -21,7 +21,7 @@ class SendMessage with ChangeNotifier {
     ChatProvider chatProvider =
         Provider.of<ChatProvider>(context, listen: false);
     if (isChatScreen == false) {
-      chatProvider.chatList = [];
+      chatProvider.currentChatList = [];
       instance.notifyListeners();
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => ChatScreen()));
@@ -53,8 +53,6 @@ class SendMessage with ChangeNotifier {
       //   backgroundColor: Colors.red,
       // ));
     } finally {
-      // scrollListToEnd();
-
       chatProvider.changeTypingStatus(false);
     }
   }
