@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart';
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 
 final myBox = Hive.box('myBox');
 
@@ -38,7 +39,6 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     conv = widget.conversation;
-    print(conv);
     return WillPopScope(
       onWillPop: () async {
         DateTime now = DateTime.now();
