@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/history_screen.dart';
 import 'package:smart_gpt_ai/homepage.dart';
 
+import 'constants.dart';
+
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
 
@@ -21,6 +23,9 @@ class _StartScreenState extends State<StartScreen> {
     return Scaffold(
       body: pages[currentPageIndex],
       bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: ColorPallate.bgColor,
+          selectedItemColor: ColorPallate.textColor,
+          unselectedItemColor: ColorPallate.light2,
           type: BottomNavigationBarType.fixed,
           onTap: (value) => setState(() {
                 currentPageIndex = value;

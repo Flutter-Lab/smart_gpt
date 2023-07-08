@@ -1,4 +1,5 @@
 // ignore_for_file: prefer_const_constructors
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -17,6 +18,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final myBox = Hive.box('myBox');
     final chatList = myBox.values.toList();
 
+    print(chatList.length);
+    print(chatList.runtimeType);
+    print(chatList);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -25,12 +30,27 @@ class _HistoryScreenState extends State<HistoryScreen> {
             Flexible(
                 child: ListView.builder(
               itemCount: chatList.length,
-              itemBuilder: (context, index) => HistoryItemWidget(
-                chatList: chatList,
-                index: index,
+              itemBuilder: (context, index) {
+                if (index >= 0 && index < chatList.length) {
+                  return HistoryItemWidget(
+                    chatList: chatList,
+                    index: index,
+                  );
+                } else {
+                  return Container();
+                }
+              },
+            )),
+            ElevatedButton(
+              onPressed: () {
+                myBox.clear();
+                setState(() {});
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [Text('Delete All'), Icon(Icons.delete)],
               ),
-              // Text('Data'),
-            ))
+            )
           ],
         ),
       ),

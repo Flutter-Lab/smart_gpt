@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:smart_gpt_ai/homepage.dart';
 import 'package:smart_gpt_ai/start_screen.dart';
+import 'constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,9 +28,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
-        useMaterial3: true,
-      ),
+          useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
       home: StartScreen(),
       // home: ChatScreen(),
     );

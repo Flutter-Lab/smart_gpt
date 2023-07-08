@@ -58,8 +58,10 @@ class _ChatScreenState extends State<ChatScreen> {
             Flexible(
                 child: ListView.builder(
                     itemCount: widget.conversation.length,
-                    itemBuilder: (context, index) =>
-                        Text(widget.conversation[index]["msg"]))),
+                    itemBuilder: (context, index) => Text(
+                          widget.conversation[index]["msg"],
+                          style: TextStyle(color: Colors.white),
+                        ))),
             ElevatedButton(
                 onPressed: () {
                   setState(() {

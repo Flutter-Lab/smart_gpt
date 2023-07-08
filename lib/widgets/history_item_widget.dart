@@ -3,6 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/chatscreen.dart';
 
+import '../constants.dart';
+import 'text_widget.dart';
+
 class HistoryItemWidget extends StatelessWidget {
   const HistoryItemWidget({
     Key? key,
@@ -15,38 +18,53 @@ class HistoryItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> oldConv = [];
+    List<Map<String, dynamic>> convertedChatList = convertList(chatList);
 
-    convertList(oldConv);
+    print(convertedChatList.length);
+
+    print(chatList[index]);
+
+    String msg = chatList[index][0]['conversation'][0]['msg'];
+    String timeStamp = chatList[index][0]['timeStamp'];
 
     return Card(
-      color: Colors.black54,
+      color: ColorPallate.cardColor,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-          onTap: () {
-            print(oldConv.runtimeType);
+          leading: TextWidget(
+            label: index.toString(),
+            color: Colors.grey,
+          ),
+          title: TextWidget(
+            label: msg,
+            color: Colors.white,
+          ),
+          subtitle: TextWidget(
+            label: timeStamp,
+            color: Colors.grey,
+            fontSize: 16,
+          ),
+          trailing: Icon(
+            Icons.arrow_forward_ios,
+            color: Colors.grey,
+          ),
+          onTap: () async {
             Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => ChatScreen(
-                          oldConv,
+                          convertedChatList,
                         )));
           },
-          title: Text(
-            chatList[index][0]['conversation'][0]['msg'],
-            style: TextStyle(fontSize: 22, color: Colors.white),
-          ),
-          subtitle: Text(
-            chatList[index][0]['timeStamp'],
-            style: TextStyle(fontSize: 15, color: Colors.white),
-          ),
         ),
       ),
     );
   }
 
-  void convertList(List<Map<String, dynamic>> oldConv) {
+  List<Map<String, dynamic>> convertList(var chatList) {
+    List<Map<String, dynamic>> oldConv = [];
+
     chatList[index][0]['conversation'].map((item) {
       print(item.runtimeType);
       Map<String, dynamic> convertedMap = {};
@@ -55,5 +73,7 @@ class HistoryItemWidget extends StatelessWidget {
       });
       oldConv.add(convertedMap);
     });
+
+    return oldConv;
   }
 }
