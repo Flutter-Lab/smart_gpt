@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                ChatScreen(conversation, 0, '')));
+                                ChatScreen(conversation, 0, '', index)));
                   },
                   child: Text(hotTopics[index]),
                 ),

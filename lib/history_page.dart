@@ -39,14 +39,13 @@ class _HistoryPageState extends State<HistoryPage> {
                                         Map<String, dynamic>.from(
                                             element.cast<String, dynamic>());
                                     oldConv.add(convertedMap);
-                                    print(convertedMap);
                                   });
-
+                                  // print(ontimeList);
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              ChatScreen(oldConv, 1, '')));
+                                          builder: (context) => ChatScreen(
+                                              oldConv, 1, '', index)));
                                 },
                                 child: Text(
                                   hiveList[index][0]["conversation"][0]["msg"],

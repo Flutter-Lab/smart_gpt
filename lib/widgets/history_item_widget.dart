@@ -54,7 +54,7 @@ class HistoryItemWidget extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        ChatScreen(convertedChatList, 0, '')));
+                        ChatScreen(convertedChatList, 0, '', index)));
           },
         ),
       ),

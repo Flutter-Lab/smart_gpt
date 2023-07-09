@@ -9,36 +9,38 @@ final myBox = Hive.box('myBox');
 class ChatScreen extends StatefulWidget {
   List<Map<String, dynamic>> conversation;
   int id;
+  int indexNumber;
   String dateTime;
 
-  ChatScreen(this.conversation, this.id, this.dateTime);
+  ChatScreen(this.conversation, this.id, this.dateTime, this.indexNumber);
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
+
+  List<Map<String, dynamic>> getConversation() {
+    return conversation;
+  }
 }
 
 class _ChatScreenState extends State<ChatScreen> {
   List<Map<String, dynamic>> conv = [];
+  List<Map<String, dynamic>> addedConversation = [];
   int id = 0;
   String dateTime = '';
+  int indexNumber = 0;
   int checkLength = 0;
   int count = 0;
 
   late String question = 'This is another question';
   late String replyByBot;
 
-  void waitFunction() async {
-    await Future.delayed(Duration(seconds: 2));
-    replyByBot = 'you are so telented';
+  void replyFunction() async {
+    await Future.delayed(Duration(seconds: 1));
+    replyByBot = 'this is a reply';
     setState(() {
       conv.add({"msg": replyByBot, "index": 1});
+      addedConversation.add({"msg": replyByBot, "index": 1});
     });
-  }
-
-  @override
-  void initState() {
-    waitFunction();
-    super.initState();
   }
 
   @override
@@ -46,8 +48,13 @@ class _ChatScreenState extends State<ChatScreen> {
     conv = widget.conversation;
     id = widget.id;
     dateTime = widget.dateTime;
+    indexNumber = widget.indexNumber;
 
     if (count < 1) {
+      if (conv.length == 1) {
+        replyFunction();
+      }
+
       checkLength = widget.conversation.length;
       count++;
     }
@@ -70,15 +77,15 @@ class _ChatScreenState extends State<ChatScreen> {
             });
             await myBox.add(conWithTime);
           } else {
-            // myBox.put(1688869759112, {});
-            // final hiveList = myBox.values.toList();
-            // myBox.clear();
-            var data = myBox.get('1688869759112');
-            print(data);
+            final hiveList = myBox.values.toList();
+            addedConversation.forEach((element) async {
+              await hiveList[indexNumber][0]["conversation"].add(element);
+            });
+            print(addedConversation);
           }
         }
         final hiveList = myBox.values.toList();
-        print(hiveList);
+        // print(hiveList);
 
         return true;
       },
@@ -97,8 +104,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 onPressed: () {
                   setState(() {
                     conv.add({"msg": question, "index": 0});
+                    addedConversation.add({"msg": question, "index": 0});
                   });
-                  waitFunction();
+                  replyFunction();
                 },
                 child: Text('submit')),
           ],

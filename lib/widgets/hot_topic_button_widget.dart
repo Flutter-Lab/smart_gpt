@@ -22,7 +22,7 @@ class HotTopicButtonWidget extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(conversation, 0, '')));
+                builder: (context) => ChatScreen(conversation, 0, '', index)));
       },
       child: Text(hotTopics[index]),
     );
