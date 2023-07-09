@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/history_page.dart';
-import 'package:smart_gpt_ai/history_screen.dart';
 import 'package:smart_gpt_ai/homepage.dart';
 
 import 'constants.dart';

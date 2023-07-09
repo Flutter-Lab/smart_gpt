@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/chatscreen.dart';
@@ -47,9 +48,15 @@ class _HistoryPageState extends State<HistoryPage> {
                                           builder: (context) => ChatScreen(
                                               oldConv, 1, '', index)));
                                 },
-                                child: Text(
-                                  hiveList[index][0]["conversation"][0]["msg"],
-                                  style: TextStyle(),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      hiveList[index][0]["conversation"][0]
+                                          ["msg"],
+                                      style: TextStyle(),
+                                    ),
+                                    Text(hiveList[index][0]["timeStamp"]),
+                                  ],
                                 )),
                           );
                         } else {
