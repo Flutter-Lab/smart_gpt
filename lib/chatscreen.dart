@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_gpt_ai/history_page.dart';
+import 'package:smart_gpt_ai/start_screen.dart';
 
 final myBox = Hive.box('myBox');
 
@@ -25,6 +27,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   List<Map<String, dynamic>> conv = [];
   List<Map<String, dynamic>> addedConversation = [];
+  List<Map<String, dynamic>> modifiedList = [];
   int id = 0;
   String dateTime = '';
   int indexNumber = 0;
@@ -59,58 +62,72 @@ class _ChatScreenState extends State<ChatScreen> {
       count++;
     }
 
-    return WillPopScope(
-      onWillPop: () async {
-        DateTime now = DateTime.now();
-        int milliseconds = now.millisecondsSinceEpoch;
-        String uniqueId = '$milliseconds';
-        String formattedDate = DateFormat('yyyy/MM/dd HH:mm').format(now);
-        if (checkLength == conv.length) {
-          //if true means no changes happed.
-        } else {
-          if (id == 0) {
-            List<Map<String, dynamic>> conWithTime = [];
-            conWithTime.add({
-              "conversation": conv,
-              "ID": uniqueId,
-              "timeStamp": formattedDate
-            });
-            await myBox.add(conWithTime);
-          } else {
-            final hiveList = myBox.values.toList();
-            addedConversation.forEach((element) async {
-              await hiveList[indexNumber][0]["conversation"].add(element);
-            });
-            print(addedConversation);
-          }
-        }
-        final hiveList = myBox.values.toList();
-        // print(hiveList);
-
-        return true;
-      },
-      child: Scaffold(
-        appBar: AppBar(title: Text("chat screen")),
-        body: Column(
-          children: [
-            Flexible(
-                child: ListView.builder(
-                    itemCount: widget.conversation.length,
-                    itemBuilder: (context, index) => Text(
-                          widget.conversation[index]["msg"],
-                          style: TextStyle(color: Colors.white),
-                        ))),
-            ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    conv.add({"msg": question, "index": 0});
-                    addedConversation.add({"msg": question, "index": 0});
+    return Scaffold(
+      appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () async {
+              DateTime now = DateTime.now();
+              int milliseconds = now.millisecondsSinceEpoch;
+              String uniqueId = '$milliseconds';
+              String formattedDate = DateFormat('yyyy/MM/dd HH:mm').format(now);
+              if (checkLength == conv.length) {
+                //if true means no changes happed.
+              } else {
+                if (id == 0) {
+                  List<Map<String, dynamic>> conWithTime = [];
+                  conWithTime.add({
+                    "conversation": conv,
+                    "ID": uniqueId,
+                    "timeStamp": formattedDate
                   });
-                  replyFunction();
-                },
-                child: Text('submit')),
-          ],
-        ),
+                  await myBox.add(conWithTime);
+                } else {
+                  modifiedList = [];
+                  final hiveList = myBox.values.toList();
+                  modifiedList.add({
+                    "conversation": hiveList[indexNumber][0]["conversation"],
+                    "ID": hiveList[indexNumber][0]["ID"],
+                    "timeStamp": formattedDate
+                  });
+                  print(modifiedList);
+                  myBox.put(indexNumber, modifiedList);
+
+                  addedConversation.forEach((element) async {
+                    await hiveList[indexNumber][0]["conversation"].add(element);
+                  });
+
+                  print(hiveList[indexNumber]);
+                  // print(hiveList[indexNumber]);
+                }
+              }
+              // final hiveList = myBox.values.toList();
+              // print(hiveList);
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return StartScreen(pageIndex: 1);
+              }));
+            },
+          ),
+          title: Text("chat screen")),
+      body: Column(
+        children: [
+          Flexible(
+              child: ListView.builder(
+                  itemCount: widget.conversation.length,
+                  itemBuilder: (context, index) => Text(
+                        widget.conversation[index]["msg"],
+                        style: TextStyle(color: Colors.white),
+                      ))),
+          ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  conv.add({"msg": question, "index": 0});
+                  addedConversation.add({"msg": question, "index": 0});
+                });
+                replyFunction();
+              },
+              child: Text('submit')),
+        ],
       ),
     );
   }

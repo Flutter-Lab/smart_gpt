@@ -7,18 +7,21 @@ import 'package:smart_gpt_ai/homepage.dart';
 import 'constants.dart';
 
 class StartScreen extends StatefulWidget {
-  const StartScreen({super.key});
+  final int pageIndex;
+  StartScreen({super.key, required this.pageIndex});
 
   @override
   State<StartScreen> createState() => _StartScreenState();
 }
 
 class _StartScreenState extends State<StartScreen> {
-  int currentPageIndex = 0;
-
+  late int currentPageIndex;
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = [HomeScreen(), HistoryPage()];
+    setState(() {
+      currentPageIndex = widget.pageIndex;
+    });
 
     return Scaffold(
       body: pages[currentPageIndex],
@@ -29,6 +32,7 @@ class _StartScreenState extends State<StartScreen> {
           type: BottomNavigationBarType.fixed,
           onTap: (value) => setState(() {
                 currentPageIndex = value;
+                print(currentPageIndex);
               }),
           currentIndex: currentPageIndex,
           items: [

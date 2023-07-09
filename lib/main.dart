@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
 
       theme: ThemeData(
           useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
-      home: StartScreen(),
+      home: StartScreen(pageIndex: 0),
       // home: ChatScreen(),
     );
   }
