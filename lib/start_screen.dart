@@ -16,12 +16,20 @@ class StartScreen extends StatefulWidget {
 
 class _StartScreenState extends State<StartScreen> {
   late int currentPageIndex;
+
+  @override
+  void initState() {
+    currentPageIndex = widget.pageIndex;
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = [HomeScreen(), HistoryPage()];
-    setState(() {
-      currentPageIndex = widget.pageIndex;
-    });
+    // setState(() {
+    //   currentPageIndex = widget.pageIndex;
+    // });
 
     return Scaffold(
       body: pages[currentPageIndex],
