@@ -104,7 +104,11 @@ class _ChatScreenState extends State<ChatScreen> {
               // final hiveList = myBox.values.toList();
               // print(hiveList);
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return StartScreen(pageIndex: 1);
+                if (checkLength > 1) {
+                  return StartScreen(pageIndex: 1);
+                } else {
+                  return StartScreen(pageIndex: 0);
+                }
               }));
             },
           ),
