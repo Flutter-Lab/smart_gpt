@@ -65,14 +65,31 @@ class HistoryItemWidget extends StatelessWidget {
   List<Map<String, dynamic>> convertList(var chatList) {
     List<Map<String, dynamic>> oldConv = [];
 
-    chatList[index][0]['conversation'].map((item) {
-      print(item.runtimeType);
-      Map<String, dynamic> convertedMap = {};
-      item.forEach((key, value) {
-        convertedMap[key.toString()] = value;
-      });
-      oldConv.add(convertedMap);
-    });
+    // chatList[index][0]['conversation'].map((item) {
+    //   print(item.runtimeType);
+    //   Map<String, dynamic> convertedMap = {};
+    //   item.forEach((key, value) {
+    //     convertedMap[key.toString()] = value;
+    //   });
+    //   oldConv.add(convertedMap);
+    // });
+
+    // chatgpt
+    // chatList.forEach((item) {
+    //   item[0]['conversation'].forEach((conversationItem) {
+    //     print(conversationItem);
+    //     Map<String, dynamic> convertedMap = {};
+    //     conversationItem.forEach((key, value) {
+    //       convertedMap[key.toString()] = value;
+    //     });
+    //     oldConv.add(convertedMap);
+    //   });
+    // });
+
+    // chatList.forEach((item) {
+    //   print(item.length);
+    //   print(item[0]);
+    // });
 
     return oldConv;
   }

@@ -6,8 +6,6 @@ import 'package:intl/intl.dart';
 
 final myBox = Hive.box('myBox');
 
-List<Map<String, dynamic>> conv = [];
-
 class ChatScreen extends StatefulWidget {
   List<Map<String, dynamic>> conversation;
 
@@ -18,6 +16,10 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  List<Map<String, dynamic>> conv = [];
+  List<Map<String, dynamic>> changeCheck = [];
+  int count = 0;
+
   late String question = 'This is another question';
   late String replyByBot;
 
@@ -32,23 +34,31 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     waitFunction();
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    conv = widget.conversation;
+    if (count < 1) {
+      conv = widget.conversation;
+      changeCheck = widget.conversation;
+      count++;
+    }
+
     return WillPopScope(
       onWillPop: () async {
         DateTime now = DateTime.now();
-        String formattedDate = DateFormat('yyyy/MM/dd HH:mm').format(now);
+        if (changeCheck != conv) {
+          String formattedDate = DateFormat('yyyy/MM/dd HH:mm').format(now);
 
-        List<Map<String, dynamic>> conWithTime = [];
-        conWithTime.add({"conversation": conv, "timeStamp": formattedDate});
-        await myBox.add(conWithTime);
-        final hiveList = myBox.values.toList();
-        print(hiveList);
+          List<Map<String, dynamic>> conWithTime = [];
+          conWithTime.add({"conversation": conv, "timeStamp": formattedDate});
+          await myBox.add(conWithTime);
+          // final hiveList = myBox.values.toList();
+        } else {}
+        print(widget.conversation);
+        print(changeCheck);
+        print(count);
         return true;
       },
       child: Scaffold(
