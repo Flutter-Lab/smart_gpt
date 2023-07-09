@@ -35,7 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ChatScreen(conversation)));
+                            builder: (context) =>
+                                ChatScreen(conversation, 0, '')));
                   },
                   child: Text(hotTopics[index]),
                 ),

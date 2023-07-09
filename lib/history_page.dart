@@ -17,43 +17,53 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     var hiveList = myBox.values.toList();
-    print(hiveList[0][0]["conversation"]);
     return Scaffold(
         body: Column(
       children: [
-        Flexible(
-            child: ListView.builder(
-                itemCount: hiveList.length,
-                itemBuilder: (context, index) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ElevatedButton(
-                          onPressed: () {
-                            if (index >= 0 && index < hiveList.length) {
-                              oldConv = [];
-                              List<dynamic> ontimeList =
-                                  hiveList[index][0]["conversation"];
-                              ontimeList.forEach((element) {
-                                Map<String, dynamic> convertedMap =
-                                    Map<String, dynamic>.from(
-                                        element.cast<String, dynamic>());
-                                oldConv.add(convertedMap);
-                                print(convertedMap);
-                              });
+        hiveList.length > 0
+            ? Flexible(
+                child: ListView.builder(
+                    itemCount: hiveList.length,
+                    itemBuilder: (context, index) {
+                      try {
+                        if (index >= 0 && index < hiveList.length) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  oldConv = [];
+                                  List<dynamic> ontimeList =
+                                      hiveList[index][0]["conversation"];
+                                  ontimeList.forEach((element) {
+                                    Map<String, dynamic> convertedMap =
+                                        Map<String, dynamic>.from(
+                                            element.cast<String, dynamic>());
+                                    oldConv.add(convertedMap);
+                                    print(convertedMap);
+                                  });
 
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ChatScreen(oldConv)));
-                            } else {
-                              Container();
-                            }
-                          },
-                          child: Text(
-                            hiveList[index][0]["conversation"][0]["msg"],
-                            style: TextStyle(),
-                          )),
-                    ))),
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ChatScreen(oldConv, 1, '')));
+                                },
+                                child: Text(
+                                  hiveList[index][0]["conversation"][0]["msg"],
+                                  style: TextStyle(),
+                                )),
+                          );
+                        } else {
+                          return Container();
+                        }
+                      } catch (error) {
+                        print(error);
+                      }
+                    }),
+              )
+            : Center(
+                child: Text("No History Availeble"),
+              ),
         ElevatedButton(
           onPressed: () {
             myBox.clear();

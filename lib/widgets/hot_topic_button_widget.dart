@@ -19,8 +19,10 @@ class HotTopicButtonWidget extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {
         conversation.add({"msg": hotTopics[index], "index": 0});
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ChatScreen(conversation)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ChatScreen(conversation, 0, '')));
       },
       child: Text(hotTopics[index]),
     );

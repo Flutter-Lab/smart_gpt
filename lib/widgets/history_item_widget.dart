@@ -53,9 +53,8 @@ class HistoryItemWidget extends StatelessWidget {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => ChatScreen(
-                          convertedChatList,
-                        )));
+                    builder: (context) =>
+                        ChatScreen(convertedChatList, 0, '')));
           },
         ),
       ),
