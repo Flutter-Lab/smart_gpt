@@ -5,21 +5,13 @@ import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
 import '../../constants.dart';
 
-class TaskCard extends StatelessWidget {
+class TaskCardFullWidth extends StatelessWidget {
   String title;
-  double? titleFontSize;
-  String? subtitle;
-  Color? titleColor;
   final String icon;
-  bool? isFullWidth;
   VoidCallback? onPressed;
-  TaskCard({
+  TaskCardFullWidth({
     required this.title,
-    this.titleFontSize,
-    this.subtitle,
-    this.titleColor,
     required this.icon,
-    this.isFullWidth,
     this.onPressed,
   });
 
@@ -30,7 +22,7 @@ class TaskCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.only(left: 10, right: 8, top: 8, bottom: 10),
         margin: const EdgeInsets.all(4),
-        height: isFullWidth == true ? 70 : 100,
+        height: 70,
         constraints: const BoxConstraints(
           minHeight: 60.0, // Set the minimum height here
         ),
@@ -44,29 +36,18 @@ class TaskCard extends StatelessWidget {
             Flexible(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: isFullWidth != null
-                    ? MainAxisAlignment.center
-                    : MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextWidget(
                     label: title,
-                    color: titleColor ?? Colors.white,
-                    fontSize: titleFontSize ?? 16,
+                    color: Colors.grey,
+                    fontSize: 16,
                   ),
-                  subtitle != null
-                      ? TextWidget(
-                          label: subtitle!,
-                          color: Colors.grey,
-                          fontSize: 14,
-                        )
-                      : Container(),
                 ],
               ),
             ),
             Column(
-              mainAxisAlignment: isFullWidth == true
-                  ? MainAxisAlignment.center
-                  : MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextWidget(
                   label: icon,

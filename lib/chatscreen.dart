@@ -1,11 +1,12 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
-import 'package:smart_gpt_ai/history_page.dart';
 import 'package:smart_gpt_ai/old/services/api_service.dart';
 import 'package:smart_gpt_ai/start_screen.dart';
+import 'constants.dart';
+import 'widgets/text_widget.dart';
 
 final myBox = Hive.box('myBox');
 
@@ -75,8 +76,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
+          backgroundColor: ColorPallate.cardColor,
           leading: IconButton(
-            icon: Icon(Icons.navigate_before),
+            icon: Icon(
+              Icons.navigate_before,
+              color: Colors.white,
+            ),
             onPressed: () async {
               DateTime now = DateTime.now();
               int milliseconds = now.millisecondsSinceEpoch;
@@ -125,38 +130,150 @@ class _ChatScreenState extends State<ChatScreen> {
               }));
             },
           ),
-          title: Text("chat screen")),
-      body: Column(
-        children: [
-          Flexible(
-              child: ListView.builder(
-                  itemCount: widget.conversation.length,
-                  itemBuilder: (context, index) => Text(
-                        widget.conversation[index]["msg"],
-                        style: TextStyle(color: Colors.white),
-                      ))),
-          if (gettingReply) CircularProgressIndicator(),
-          Row(
+          title: const Text(
+            "Chat screen",
+            style: TextStyle(color: Colors.white),
+          )),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
             children: [
               Flexible(
-                child: TextField(
-                  controller: _controller,
+                child: ListView.builder(
+                  itemCount: widget.conversation.length,
+                  itemBuilder: (context, index) {
+                    String msg = widget.conversation[index]["msg"];
+                    int chatIndex = widget.conversation[index]["index"];
+                    return Container(
+                      margin: EdgeInsets.only(
+                        top: 4,
+                        bottom: 4,
+                        left: chatIndex == 0 ? 24 : 4,
+                        right: chatIndex == 0 ? 4 : 24,
+                      ),
+                      decoration: BoxDecoration(
+                          color: chatIndex == 0
+                              ? Color.fromARGB(255, 28, 196, 103)
+                              : cardColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(12),
+                            topRight: Radius.circular(12),
+                            bottomLeft:
+                                Radius.circular(chatIndex == 0 ? 12 : 0),
+                            bottomRight:
+                                Radius.circular(chatIndex == 0 ? 0 : 12),
+                          )),
+                      padding: EdgeInsets.all(8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                chatIndex == 0
+                                    ? Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Expanded(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Flexible(
+                                                  child: TextWidget(
+                                                    label: msg,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : DefaultTextStyle(
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                        child: Text(msg)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
-              ElevatedButton(
-                  onPressed: () {
-                    question = _controller.text;
-                    _controller.clear();
-                    setState(() {
-                      conv.add({"msg": question, "index": 0});
-                      addedConversation.add({"msg": question, "index": 0});
-                    });
-                    replyFunction();
-                  },
-                  child: Text('submit')),
+              if (gettingReply) CircularProgressIndicator(),
+              
+              //Send Message Input Section
+              Container(
+                padding: EdgeInsets.all(8.0),
+                color: ColorPallate.cardColor,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: ColorPallate.bgColor,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: TextField(
+                          style: TextStyle(color: Colors.white),
+                          controller: _controller,
+                          onSubmitted: (value) async {},
+                          decoration: InputDecoration.collapsed(
+                              hintText: 'How can I help you?',
+                              hintStyle: TextStyle(color: Colors.grey)),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        question = _controller.text;
+                        _controller.clear();
+                        setState(() {
+                          conv.add({"msg": question, "index": 0});
+                          addedConversation.add({"msg": question, "index": 0});
+                        });
+                        replyFunction();
+                      },
+                      icon: Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Row(
+              //   children: [
+              //     Flexible(
+              //       child: TextField(
+              //         controller: _controller,
+              //       ),
+              //     ),
+              //     ElevatedButton(
+              //         onPressed: () {
+              //           question = _controller.text;
+              //           _controller.clear();
+              //           setState(() {
+              //             conv.add({"msg": question, "index": 0});
+              //             addedConversation.add({"msg": question, "index": 0});
+              //           });
+              //           replyFunction();
+              //         },
+              //         child: Text('submit')),
+              //   ],
+              // ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

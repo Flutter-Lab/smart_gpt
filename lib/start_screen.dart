@@ -27,11 +27,17 @@ class _StartScreenState extends State<StartScreen> {
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = [HomeScreen(), HistoryPage()];
-    // setState(() {
-    //   currentPageIndex = widget.pageIndex;
-    // });
-
+    List<String> pageTitles = ['Smart GPT', 'History'];
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: ColorPallate.cardColor,
+        title: Center(
+            child: Text(
+          pageTitles[currentPageIndex],
+          style: TextStyle(color: Colors.white),
+        )),
+        automaticallyImplyLeading: false,
+      ),
       body: pages[currentPageIndex],
       bottomNavigationBar: BottomNavigationBar(
           backgroundColor: ColorPallate.bgColor,

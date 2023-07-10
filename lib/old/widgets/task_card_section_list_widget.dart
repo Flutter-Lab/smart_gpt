@@ -5,8 +5,11 @@
 // import 'package:smart_gpt_ai/functions/send_message.dart';
 // import 'package:smart_gpt_ai/models/task_card_model.dart';
 // import 'package:smart_gpt_ai/screens/chat_screen.dart';
-// import 'package:smart_gpt_ai/widgets/task_card_widget.dart';
+// import 'package:smart_gpt_ai/widgets/task_card_widget_full_width.dart';
 // import 'package:smart_gpt_ai/widgets/text_widget.dart';
+
+// import '../../data/homepage_taskcard_list_data.dart';
+// import '../models/task_card_model.dart';
 
 // class TaskCardSectionListWidget extends StatelessWidget {
 //   const TaskCardSectionListWidget({super.key});
@@ -32,12 +35,9 @@
 //                   children: [
 //                     for (TaskCardModel taskCard
 //                         in taskSection.taskCardModelList)
-//                       TaskCard(
+//                       TaskCardFullWidth(
 //                         title: taskCard.title,
 //                         icon: taskCard.icon,
-//                         isFullWidth: true,
-//                         titleColor: subTextColor,
-//                         titleFontSize: 16,
 //                         onPressed: () {
 //                           conversation.add({"msg": taskCard.msg, "index": 0});
 //                           Navigator.push(

@@ -1,0 +1,13 @@
+// ignore_for_file: depend_on_referenced_packages
+
+import 'package:flutter/material.dart';
+
+class ScreenUtil {
+  static double screenWidth(BuildContext context) {
+    return MediaQuery.of(context).size.width;
+  }
+
+  static double screenHeight(BuildContext context) {
+    return MediaQuery.of(context).size.height;
+  }
+}
