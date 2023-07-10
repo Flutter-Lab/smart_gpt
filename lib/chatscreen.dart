@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages, prefer_const_constructors
+// ignore_for_file: depend_on_referenced_packages, prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -76,64 +76,69 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: ColorPallate.cardColor,
-          leading: IconButton(
-            icon: Icon(
-              Icons.navigate_before,
-              color: Colors.white,
+        automaticallyImplyLeading: false,
+        title: Stack(
+          children: [
+            IconButton(
+              icon: Icon(
+                Icons.navigate_before,
+                color: Colors.white,
+              ),
+              onPressed: () async {
+                DateTime now = DateTime.now();
+                int milliseconds = now.millisecondsSinceEpoch;
+                String uniqueId = '$milliseconds';
+                String formattedDate =
+                    DateFormat('yyyy/MM/dd HH:mm').format(now);
+                if (checkLength == conv.length) {
+                  //if true means no changes happed.
+                } else {
+                  if (id == 0) {
+                    List<Map<String, dynamic>> conWithTime = [];
+                    conWithTime.add({
+                      "conversation": conv,
+                      "ID": uniqueId,
+                      "timeStamp": formattedDate
+                    });
+                    await myBox.add(conWithTime);
+                  } else {
+                    modifiedList = [];
+                    final hiveList = myBox.values.toList();
+                    var targetID = oldConversation;
+
+                    modifiedList.add({
+                      "conversation": hiveList[indexNumber][0]["conversation"],
+                      "ID": uniqueId,
+                      "timeStamp": formattedDate
+                    });
+                    myBox.put(indexNumber, modifiedList);
+
+                    addedConversation.forEach((element) async {
+                      await hiveList[indexNumber][0]["conversation"]
+                          .add(element);
+                    });
+                  }
+                }
+
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  if (checkLength > 1) {
+                    return StartScreen(pageIndex: 1);
+                  } else {
+                    return StartScreen(pageIndex: 0);
+                  }
+                }));
+              },
             ),
-            onPressed: () async {
-              DateTime now = DateTime.now();
-              int milliseconds = now.millisecondsSinceEpoch;
-              String uniqueId = '$milliseconds';
-              String formattedDate = DateFormat('yyyy/MM/dd HH:mm').format(now);
-              if (checkLength == conv.length) {
-                //if true means no changes happed.
-              } else {
-                if (id == 0) {
-                  List<Map<String, dynamic>> conWithTime = [];
-                  conWithTime.add({
-                    "conversation": conv,
-                    "ID": uniqueId,
-                    "timeStamp": formattedDate
-                  });
-                  await myBox.add(conWithTime);
-                } else {
-                  modifiedList = [];
-                  final hiveList = myBox.values.toList();
-                  var targetID = oldConversation;
-
-                  modifiedList.add({
-                    "conversation": hiveList[indexNumber][0]["conversation"],
-                    "ID": uniqueId,
-                    "timeStamp": formattedDate
-                  });
-                  // print(modifiedList);
-                  myBox.put(indexNumber, modifiedList);
-
-                  addedConversation.forEach((element) async {
-                    await hiveList[indexNumber][0]["conversation"].add(element);
-                  });
-
-                  // print(hiveList[indexNumber]);
-                  // print(hiveList[indexNumber]);
-                }
-              }
-              // final hiveList = myBox.values.toList();
-              // print(hiveList);
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                if (checkLength > 1) {
-                  return StartScreen(pageIndex: 1);
-                } else {
-                  return StartScreen(pageIndex: 0);
-                }
-              }));
-            },
-          ),
-          title: const Text(
-            "Chat screen",
-            style: TextStyle(color: Colors.white),
-          )),
+            Center(
+              child: Text(
+                "Chat screen",
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          ],
+        ),
+        backgroundColor: ColorPallate.cardColor,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -209,7 +214,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               if (gettingReply) CircularProgressIndicator(),
-              
+
               //Send Message Input Section
               Container(
                 padding: EdgeInsets.all(8.0),
