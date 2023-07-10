@@ -89,7 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 int milliseconds = now.millisecondsSinceEpoch;
                 String uniqueId = '$milliseconds';
                 String formattedDate =
-                    DateFormat('yyyy/MM/dd HH:mm').format(now);
+                    DateFormat('dd/MM/yyyy hh:mm a').format(now);
                 if (checkLength == conv.length) {
                   //if true means no changes happed.
                 } else {

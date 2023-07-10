@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // ];
 
     return Scaffold(
+      appBar: AppBar(title: Text('Smart GPT')),
       body: Container(
         height: ScreenUtil.screenHeight(context),
         child: Center(

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/chatscreen.dart';
+import 'package:smart_gpt_ai/widgets/history_item_widget.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -45,18 +46,25 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(title: Text('History')),
         body: Column(
-      children: [
-        hiveList.length > 0
-            ? Flexible(
-                child: ListView.builder(
-                    itemCount: hiveList.length,
-                    itemBuilder: (context, index) {
-                      try {
-                        if (index >= 0 && index < hiveList.length) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ElevatedButton(
+          children: [
+            hiveList.length > 0
+                ? Flexible(
+                    child: ListView.builder(
+                        itemCount: hiveList.length,
+                        itemBuilder: (context, index) {
+                          try {
+                            if (index >= 0 && index < hiveList.length) {
+                              String msg =
+                                  hiveList[index][0]["conversation"][0]["msg"];
+
+                              String timeStamp =
+                                  hiveList[index][0]["timeStamp"];
+
+                              return HistoryItemWidget(
+                                title: msg,
+                                timeStamp: timeStamp,
                                 onPressed: () {
                                   oldConv = [];
                                   List<dynamic> ontimeList =
@@ -74,40 +82,30 @@ class _HistoryPageState extends State<HistoryPage> {
                                           builder: (context) => ChatScreen(
                                               oldConv, 1, '', index)));
                                 },
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      hiveList[index][0]["conversation"][0]
-                                          ["msg"],
-                                      style: TextStyle(),
-                                    ),
-                                    Text(hiveList[index][0]["timeStamp"]),
-                                  ],
-                                )),
-                          );
-                        } else {
-                          return Container();
-                        }
-                      } catch (error) {
-                        // print(error);
-                      }
-                    }),
-              )
-            : Center(
-                child: Text("No History Availeble"),
+                              );
+                            } else {
+                              return Container();
+                            }
+                          } catch (error) {
+                            // print(error);
+                          }
+                        }),
+                  )
+                : Center(
+                    child: Text("No History Availeble"),
+                  ),
+            ElevatedButton(
+              onPressed: () async {
+                await myBox.clear();
+                hiveList = [];
+                setState(() {});
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [Text('Delete All'), Icon(Icons.delete)],
               ),
-        ElevatedButton(
-          onPressed: () async {
-            await myBox.clear();
-            hiveList = [];
-            setState(() {});
-          },
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [Text('Delete All'), Icon(Icons.delete)],
-          ),
-        )
-      ],
-    ));
+            )
+          ],
+        ));
   }
 }

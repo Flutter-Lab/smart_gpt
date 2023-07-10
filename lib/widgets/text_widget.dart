@@ -16,10 +16,11 @@ class TextWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
+      maxLines: 2,
       label,
       softWrap: true,
-      // textAlign: TextAlign.justify,
       style: TextStyle(
+        overflow: TextOverflow.ellipsis,
         color: color ?? Colors.white,
         fontSize: fontSize,
         fontWeight: fontWeight ?? FontWeight.w500,
