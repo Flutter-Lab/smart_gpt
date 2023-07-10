@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:smart_gpt_ai/old/constants/api_consts.dart';
+import 'package:smart_gpt_ai/constants/api_consts.dart';
 
 class ApiService {
   //Send Message fct

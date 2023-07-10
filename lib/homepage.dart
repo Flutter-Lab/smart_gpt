@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
-import 'package:smart_gpt_ai/old/constants/screen_utils.dart';
+import 'package:smart_gpt_ai/constants/screen_utils.dart';
 import 'package:smart_gpt_ai/widgets/task_card_section_list_widget.dart';
 import 'chatscreen.dart';
 import 'constants.dart';
