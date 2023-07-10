@@ -14,10 +14,36 @@ class HistoryPage extends StatefulWidget {
 class _HistoryPageState extends State<HistoryPage> {
   var myBox = Hive.box('myBox');
   List<Map<String, dynamic>> oldConv = [];
+  int count = 0;
+  var hiveList = [];
+
+  Future<void> sortFunction() async {
+    if (count == 0) {
+      count = 1;
+      hiveList = myBox.values.toList();
+      if (hiveList.length > 1) {
+        hiveList.sort((b, a) => a[0]['ID'].compareTo(b[0]['ID']));
+        await myBox.clear();
+        for (var entry in hiveList) {
+          myBox.add(entry);
+        }
+        var updatedHiveList = myBox.values.toList();
+        hiveList = updatedHiveList;
+        print(hiveList);
+        print('first');
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    sortFunction();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var hiveList = myBox.values.toList();
     return Scaffold(
         body: Column(
       children: [
@@ -63,7 +89,7 @@ class _HistoryPageState extends State<HistoryPage> {
                           return Container();
                         }
                       } catch (error) {
-                        print(error);
+                        // print(error);
                       }
                     }),
               )

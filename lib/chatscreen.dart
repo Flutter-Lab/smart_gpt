@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_gpt_ai/history_page.dart';
+import 'package:smart_gpt_ai/old/services/api_service.dart';
 import 'package:smart_gpt_ai/start_screen.dart';
 
 final myBox = Hive.box('myBox');
@@ -25,6 +26,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  List<Map<String, dynamic>> oldConversation = [];
   List<Map<String, dynamic>> conv = [];
   List<Map<String, dynamic>> addedConversation = [];
   List<Map<String, dynamic>> modifiedList = [];
@@ -34,15 +36,22 @@ class _ChatScreenState extends State<ChatScreen> {
   int checkLength = 0;
   int count = 0;
 
-  late String question = 'This is another question';
+  bool gettingReply = false;
+  TextEditingController _controller = TextEditingController();
+
+  late String question = '';
   late String replyByBot;
 
   void replyFunction() async {
-    await Future.delayed(Duration(seconds: 1));
-    replyByBot = 'this is a reply';
     setState(() {
-      conv.add({"msg": replyByBot, "index": 1});
-      addedConversation.add({"msg": replyByBot, "index": 1});
+      gettingReply = true;
+    });
+    await Future.delayed(Duration(seconds: 1));
+    String botReply = await ApiService.sendMessage(message: question);
+    setState(() {
+      gettingReply = false;
+      conv.add({"msg": botReply, "index": 1});
+      addedConversation.add({"msg": botReply, "index": 1});
     });
   }
 
@@ -57,7 +66,9 @@ class _ChatScreenState extends State<ChatScreen> {
       if (conv.length == 1) {
         replyFunction();
       }
-
+      question = widget.conversation[0]["msg"];
+      oldConversation = widget.conversation;
+      print(widget.conversation);
       checkLength = widget.conversation.length;
       count++;
     }
@@ -65,7 +76,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.delete),
+            icon: Icon(Icons.navigate_before),
             onPressed: () async {
               DateTime now = DateTime.now();
               int milliseconds = now.millisecondsSinceEpoch;
@@ -85,19 +96,21 @@ class _ChatScreenState extends State<ChatScreen> {
                 } else {
                   modifiedList = [];
                   final hiveList = myBox.values.toList();
+                  var targetID = oldConversation;
+
                   modifiedList.add({
                     "conversation": hiveList[indexNumber][0]["conversation"],
-                    "ID": hiveList[indexNumber][0]["ID"],
+                    "ID": uniqueId,
                     "timeStamp": formattedDate
                   });
-                  print(modifiedList);
+                  // print(modifiedList);
                   myBox.put(indexNumber, modifiedList);
 
                   addedConversation.forEach((element) async {
                     await hiveList[indexNumber][0]["conversation"].add(element);
                   });
 
-                  print(hiveList[indexNumber]);
+                  // print(hiveList[indexNumber]);
                   // print(hiveList[indexNumber]);
                 }
               }
@@ -122,15 +135,27 @@ class _ChatScreenState extends State<ChatScreen> {
                         widget.conversation[index]["msg"],
                         style: TextStyle(color: Colors.white),
                       ))),
-          ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  conv.add({"msg": question, "index": 0});
-                  addedConversation.add({"msg": question, "index": 0});
-                });
-                replyFunction();
-              },
-              child: Text('submit')),
+          if (gettingReply) CircularProgressIndicator(),
+          Row(
+            children: [
+              Flexible(
+                child: TextField(
+                  controller: _controller,
+                ),
+              ),
+              ElevatedButton(
+                  onPressed: () {
+                    question = _controller.text;
+                    _controller.clear();
+                    setState(() {
+                      conv.add({"msg": question, "index": 0});
+                      addedConversation.add({"msg": question, "index": 0});
+                    });
+                    replyFunction();
+                  },
+                  child: Text('submit')),
+            ],
+          ),
         ],
       ),
     );

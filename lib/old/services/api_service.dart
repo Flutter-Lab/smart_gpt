@@ -1,59 +1,57 @@
-// import 'dart:convert';
-// import 'dart:io';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:smart_gpt_ai/old/constants/api_consts.dart';
 
-// import 'package:http/http.dart' as http;
-// import 'package:smart_gpt_ai/constants/api_consts.dart';
-// import 'package:smart_gpt_ai/models/chat_model.dart';
+class ApiService {
+  //Send Message fct
+  static Future<String> sendMessage({required String message}) async {
+    final url = Uri.parse('$BASE_URL//v1/chat/completions');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $API_KEY',
+    };
 
-// class ApiService {
-//   //Send Message fct
-//   static Future<List<ChatModel>> sendMessage({required String message}) async {
-//     final url = Uri.parse('$BASE_URL//v1/chat/completions');
-//     final headers = {
-//       'Content-Type': 'application/json',
-//       'Authorization': 'Bearer $API_KEY',
-//     };
+    var body = jsonEncode({
+      "model": "gpt-3.5-turbo",
+      "messages": [
+        {"role": "user", "content": message}
+      ],
+      "temperature": 0.7
+    });
 
-//     var body = jsonEncode({
-//       "model": "gpt-3.5-turbo",
-//       "messages": [
-//         {"role": "user", "content": message}
-//       ],
-//       "temperature": 0.7
-//     });
+    try {
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
+      );
 
-//     try {
-//       final response = await http.post(
-//         url,
-//         headers: headers,
-//         body: body,
-//       );
+      Map jsonResponse = jsonDecode(response.body);
+      if (jsonResponse['error'] != null) {
+        throw HttpException(jsonResponse['error']['message']);
+      }
 
-//       Map jsonResponse = jsonDecode(response.body);
-//       if (jsonResponse['error'] != null) {
-//         throw HttpException(jsonResponse['error']['message']);
-//       }
+      List<dynamic> chatList = [];
+      late String messageContent;
+      if (jsonResponse['choices'].length > 0) {
+        messageContent = jsonResponse['choices'][0]['message']['content'];
+        print(messageContent);
 
-//       List<ChatModel> chatList = [];
+        // chatList = List.generate(
+        //   jsonResponse['choices'].length,
+        //   (index) => ChatModel(
+        //     msg: messageContent,
+        //     chatIndex: 1,
+        //   ),
+        // );
 
-//       if (jsonResponse['choices'].length > 0) {
-//         String messageContent =
-//             jsonResponse['choices'][0]['message']['content'];
-
-//         chatList = List.generate(
-//           jsonResponse['choices'].length,
-//           (index) => ChatModel(
-//             msg: messageContent,
-//             chatIndex: 1,
-//           ),
-//         );
-
-//         print("Response messege is: $messageContent");
-//       }
-//       print('Response status: ${response.statusCode}');
-//       return chatList;
-//     } catch (error) {
-//       rethrow;
-//     }
-//   }
-// }
+        print("Response messege is: $messageContent");
+      }
+      return messageContent;
+      print('Response status: ${response.statusCode}');
+    } catch (error) {
+      rethrow;
+    }
+  }
+}
