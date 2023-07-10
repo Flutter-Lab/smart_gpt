@@ -38,7 +38,7 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   void initState() {
     sortFunction();
-
+    ;
     super.initState();
   }
 
@@ -97,8 +97,9 @@ class _HistoryPageState extends State<HistoryPage> {
                 child: Text("No History Availeble"),
               ),
         ElevatedButton(
-          onPressed: () {
-            myBox.clear();
+          onPressed: () async {
+            await myBox.clear();
+            hiveList = [];
             setState(() {});
           },
           child: Row(
