@@ -6,6 +6,8 @@ import 'package:smart_gpt_ai/models/half_width_task_card_model.dart';
 import 'package:smart_gpt_ai/widgets/task_card_widget_half_width.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
+import '../chatscreen.dart';
+
 class TaskCardHalfWidthGridListWidget extends StatelessWidget {
   const TaskCardHalfWidthGridListWidget({super.key});
 
@@ -29,7 +31,7 @@ class TaskCardHalfWidthGridListWidget extends StatelessWidget {
                       itemCount: currentSectionGridList.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2),
+                              crossAxisCount: 2, childAspectRatio: 1.7),
                       itemBuilder: (context, index) {
                         var currentTaskCard = currentSectionGridList[index];
 
@@ -40,14 +42,21 @@ class TaskCardHalfWidthGridListWidget extends StatelessWidget {
                                 icon: currentTaskCard.icon,
                                 msg: currentTaskCard.msg);
 
-                        return IntrinsicHeight(
-                          child: Container(
-                            height: 50,
-                            child: TaskCardHalfWidth(
-                              taskModel: taskModel,
-                              onPressed: () {},
-                            ),
-                          ),
+                        return TaskCardHalfWidth(
+                          taskModel: taskModel,
+                          onPressed: () {
+                            List<Map<String, dynamic>> conversation = [];
+                            conversation
+                                .add({"msg": taskModel.msg, "index": 0});
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                        conversation: conversation,
+                                        id: 0,
+                                        dateTime: '',
+                                        indexNumber: 0)));
+                          },
                         );
                       })
                 ],

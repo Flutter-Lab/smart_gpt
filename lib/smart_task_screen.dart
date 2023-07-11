@@ -5,8 +5,8 @@ import 'package:smart_gpt_ai/constants.dart';
 import 'package:smart_gpt_ai/widgets/task_card_half_width_list_widget.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
-class SmartTask extends StatelessWidget {
-  const SmartTask({super.key});
+class SmartTaskScreen extends StatelessWidget {
+  const SmartTaskScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +18,13 @@ class SmartTask extends StatelessWidget {
           child: TextWidget(label: 'Smart Task', fontSize: 20),
         ),
       ),
-      body: Column(
-        children: [
-          TaskCardHalfWidthGridListWidget(),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            TaskCardHalfWidthGridListWidget(),
+          ],
+        ),
       ),
     );
   }

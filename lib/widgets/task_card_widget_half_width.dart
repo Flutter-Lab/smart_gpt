@@ -29,58 +29,43 @@ class TaskCardHalfWidth extends StatelessWidget {
         decoration: BoxDecoration(
             color: ColorPallate.cardColor,
             borderRadius: BorderRadius.circular(16.0)),
-        child: Container(
-          color: Colors.amber,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Container(
-                  color: Colors.blue,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        color: Colors.green,
-                        child: Text(
-                          taskModel.title,
-                          maxLines: 1,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Container(
-                        color: Colors.indigo,
-                        child: TextWidget(
-                          label: taskModel.subtitle,
-                          color: Colors.grey,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Column(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    color: Colors.red,
-                    child: TextWidget(
-                      label: taskModel.icon,
-                      fontSize: 25,
-                    ),
+                  Text(
+                    taskModel.title,
+                    maxLines: 1,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  TextWidget(
+                    label: taskModel.subtitle,
+                    color: Colors.grey,
+                    fontSize: 15,
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextWidget(
+                  label: taskModel.icon,
+                  fontSize: 25,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
