@@ -1,9 +1,13 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/chatscreen.dart';
 import 'package:smart_gpt_ai/widgets/history_item_widget.dart';
+import 'package:smart_gpt_ai/widgets/text_widget.dart';
+
+import 'constants.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -30,8 +34,8 @@ class _HistoryPageState extends State<HistoryPage> {
         }
         var updatedHiveList = myBox.values.toList();
         hiveList = updatedHiveList;
-        print(hiveList);
-        print('first');
+        // print(hiveList);
+        // print('first');
       }
     }
   }
@@ -39,17 +43,50 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   void initState() {
     sortFunction();
-    ;
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('History')),
+        appBar: AppBar(
+          backgroundColor: ColorPallate.cardColor,
+          title: Center(
+              child: Text(
+            'History',
+            style: TextStyle(color: Colors.white),
+          )),
+          automaticallyImplyLeading: false,
+          actions: [
+            //If this is History Screen
+
+            PopupMenuButton(
+                color: ColorPallate.bgColor,
+                icon: Icon(
+                  Icons.more_vert_rounded,
+                  color: Colors.white,
+                ),
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                        onTap: () async {
+                          var myBox = Hive.box('myBox');
+                          await myBox.clear();
+                          hiveList = [];
+                          setState(() {});
+                        },
+                        child: Text(
+                          'Delete All History',
+                          style: TextStyle(color: Colors.white),
+                        )),
+                  ];
+                })
+          ],
+        ),
         body: Column(
           children: [
-            hiveList.length > 0
+            hiveList.isNotEmpty
                 ? Flexible(
                     child: ListView.builder(
                         itemCount: hiveList.length,
@@ -58,10 +95,8 @@ class _HistoryPageState extends State<HistoryPage> {
                             if (index >= 0 && index < hiveList.length) {
                               String msg =
                                   hiveList[index][0]["conversation"][0]["msg"];
-
                               String timeStamp =
                                   hiveList[index][0]["timeStamp"];
-
                               return HistoryItemWidget(
                                 title: msg,
                                 timeStamp: timeStamp,
@@ -69,42 +104,42 @@ class _HistoryPageState extends State<HistoryPage> {
                                   oldConv = [];
                                   List<dynamic> ontimeList =
                                       hiveList[index][0]["conversation"];
-                                  ontimeList.forEach((element) {
+                                  for (var element in ontimeList) {
                                     Map<String, dynamic> convertedMap =
                                         Map<String, dynamic>.from(
                                             element.cast<String, dynamic>());
                                     oldConv.add(convertedMap);
-                                  });
-                                  // print(ontimeList);
+                                  }
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => ChatScreen(
-                                              oldConv, 1, '', index)));
+                                                conversation: oldConv,
+                                                id: 1,
+                                                indexNumber: index,
+                                                dateTime: '',
+                                              )));
                                 },
                               );
                             } else {
                               return Container();
                             }
                           } catch (error) {
-                            // print(error);
+                            if (kDebugMode) {
+                              print(error);
+                            }
                           }
+                          return null;
                         }),
                   )
-                : Center(
-                    child: Text("No History Availeble"),
+                : Expanded(
+                    child: Center(
+                      child: TextWidget(
+                        label: 'History is Empty',
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-            ElevatedButton(
-              onPressed: () async {
-                await myBox.clear();
-                hiveList = [];
-                setState(() {});
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [Text('Delete All'), Icon(Icons.delete)],
-              ),
-            )
           ],
         ));
   }

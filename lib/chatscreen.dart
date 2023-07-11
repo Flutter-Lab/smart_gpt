@@ -1,22 +1,31 @@
-// ignore_for_file: depend_on_referenced_packages, prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables
+// ignore_for_file: use_build_context_synchronously, avoid_function_literals_in_foreach_calls
 
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:intl/intl.dart';
+
 import 'package:smart_gpt_ai/old/services/api_service.dart';
 import 'package:smart_gpt_ai/start_screen.dart';
+
 import 'constants.dart';
 import 'widgets/text_widget.dart';
 
 final myBox = Hive.box('myBox');
 
 class ChatScreen extends StatefulWidget {
-  List<Map<String, dynamic>> conversation;
-  int id;
-  int indexNumber;
-  String dateTime;
+  final List<Map<String, dynamic>> conversation;
+  final int id;
+  final int indexNumber;
+  final String dateTime;
 
-  ChatScreen(this.conversation, this.id, this.dateTime, this.indexNumber);
+  const ChatScreen({
+    Key? key,
+    required this.conversation,
+    required this.id,
+    required this.indexNumber,
+    required this.dateTime,
+  }) : super(key: key);
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -38,7 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
   int count = 0;
 
   bool gettingReply = false;
-  TextEditingController _controller = TextEditingController();
+  TextEditingController controller = TextEditingController();
 
   late String question = '';
   late String replyByBot;
@@ -47,7 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       gettingReply = true;
     });
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     String botReply = await ApiService.sendMessage(message: question);
     setState(() {
       gettingReply = false;
@@ -69,7 +78,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
       question = widget.conversation[0]["msg"];
       oldConversation = widget.conversation;
-      print(widget.conversation);
+      // print(widget.conversation);
       checkLength = widget.conversation.length;
       count++;
     }
@@ -80,7 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Stack(
           children: [
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.navigate_before,
                 color: Colors.white,
               ),
@@ -104,8 +113,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   } else {
                     modifiedList = [];
                     final hiveList = myBox.values.toList();
-                    var targetID = oldConversation;
-
                     modifiedList.add({
                       "conversation": hiveList[indexNumber][0]["conversation"],
                       "ID": uniqueId,
@@ -122,14 +129,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   if (checkLength > 1) {
-                    return StartScreen(pageIndex: 1);
+                    return const StartScreen(pageIndex: 1);
                   } else {
-                    return StartScreen(pageIndex: 0);
+                    return const StartScreen(pageIndex: 0);
                   }
                 }));
               },
             ),
-            Center(
+            const Center(
               child: Text(
                 "Chat screen",
                 style: TextStyle(color: Colors.white),
@@ -159,17 +166,17 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       decoration: BoxDecoration(
                           color: chatIndex == 0
-                              ? Color.fromARGB(255, 28, 196, 103)
+                              ? const Color.fromARGB(255, 28, 196, 103)
                               : cardColor,
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(12),
-                            topRight: Radius.circular(12),
+                            topRight: const Radius.circular(12),
                             bottomLeft:
                                 Radius.circular(chatIndex == 0 ? 12 : 0),
                             bottomRight:
                                 Radius.circular(chatIndex == 0 ? 0 : 12),
                           )),
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
@@ -213,26 +220,26 @@ class _ChatScreenState extends State<ChatScreen> {
                   },
                 ),
               ),
-              if (gettingReply) CircularProgressIndicator(),
+              if (gettingReply) const CircularProgressIndicator(),
 
               //Send Message Input Section
               Container(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 color: ColorPallate.cardColor,
                 child: Row(
                   children: [
                     Expanded(
                       child: Container(
-                        padding: EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
                           color: ColorPallate.bgColor,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: TextField(
-                          style: TextStyle(color: Colors.white),
-                          controller: _controller,
+                          style: const TextStyle(color: Colors.white),
+                          controller: controller,
                           onSubmitted: (value) async {},
-                          decoration: InputDecoration.collapsed(
+                          decoration: const InputDecoration.collapsed(
                               hintText: 'How can I help you?',
                               hintStyle: TextStyle(color: Colors.grey)),
                         ),
@@ -240,15 +247,15 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     IconButton(
                       onPressed: () {
-                        question = _controller.text;
-                        _controller.clear();
+                        question = controller.text;
+                        controller.clear();
                         setState(() {
                           conv.add({"msg": question, "index": 0});
                           addedConversation.add({"msg": question, "index": 0});
                         });
                         replyFunction();
                       },
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.send,
                         color: Colors.white,
                       ),

@@ -1,19 +1,19 @@
-// ignore_for_file: must_be_immutable, use_key_in_widget_constructors
-
 import 'package:flutter/material.dart';
+
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
 import '../../constants.dart';
 
 class TaskCardFullWidth extends StatelessWidget {
-  String title;
+  final String title;
   final String icon;
-  VoidCallback? onPressed;
-  TaskCardFullWidth({
+  final VoidCallback? onPressed;
+  const TaskCardFullWidth({
+    Key? key,
     required this.title,
     required this.icon,
     this.onPressed,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

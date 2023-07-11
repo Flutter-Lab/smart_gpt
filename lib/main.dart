@@ -15,7 +15,7 @@ void main() async {
   return runApp(
     DevicePreview(
       enabled: !kReleaseMode && !Platform.isAndroid,
-      builder: (context) => MyApp(), // Wrap your app
+      builder: (context) => const MyApp(), // Wrap your app
     ),
   );
 }
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
 
       theme: ThemeData(
           useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
-      home: StartScreen(pageIndex: 0),
+      home: const StartScreen(pageIndex: 0),
       // home: ChatScreen(),
     );
   }

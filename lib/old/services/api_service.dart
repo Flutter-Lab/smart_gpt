@@ -6,10 +6,10 @@ import 'package:smart_gpt_ai/constants/api_consts.dart';
 class ApiService {
   //Send Message fct
   static Future<String> sendMessage({required String message}) async {
-    final url = Uri.parse('$BASE_URL//v1/chat/completions');
+    final url = Uri.parse('$baseUrl//v1/chat/completions');
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $API_KEY',
+      'Authorization': 'Bearer $apiKey',
     };
 
     var body = jsonEncode({
@@ -32,24 +32,13 @@ class ApiService {
         throw HttpException(jsonResponse['error']['message']);
       }
 
-      List<dynamic> chatList = [];
       late String messageContent;
       if (jsonResponse['choices'].length > 0) {
         messageContent = jsonResponse['choices'][0]['message']['content'];
-        print(messageContent);
-
-        // chatList = List.generate(
-        //   jsonResponse['choices'].length,
-        //   (index) => ChatModel(
-        //     msg: messageContent,
-        //     chatIndex: 1,
-        //   ),
-        // );
-
-        print("Response messege is: $messageContent");
+        // print(messageContent);
+        // print("Response messege is: $messageContent");
       }
       return messageContent;
-      print('Response status: ${response.statusCode}');
     } catch (error) {
       rethrow;
     }
