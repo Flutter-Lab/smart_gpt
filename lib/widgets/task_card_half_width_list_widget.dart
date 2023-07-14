@@ -6,7 +6,7 @@ import 'package:smart_gpt_ai/models/half_width_task_card_model.dart';
 import 'package:smart_gpt_ai/widgets/task_card_widget_half_width.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
-import '../chatscreen.dart';
+import '../chat_screen.dart';
 
 class TaskCardHalfWidthGridListWidget extends StatelessWidget {
   const TaskCardHalfWidthGridListWidget({super.key});
@@ -24,14 +24,18 @@ class TaskCardHalfWidthGridListWidget extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextWidget(label: currentSection.sectionTitle),
+                  Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: TextWidget(
+                        label: currentSection.sectionTitle, fontSize: 20),
+                  ),
                   GridView.builder(
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: currentSectionGridList.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2, childAspectRatio: 1.7),
+                              crossAxisCount: 2, childAspectRatio: 1.8),
                       itemBuilder: (context, index) {
                         var currentTaskCard = currentSectionGridList[index];
 
@@ -48,17 +52,18 @@ class TaskCardHalfWidthGridListWidget extends StatelessWidget {
                             List<Map<String, dynamic>> conversation = [];
                             conversation
                                 .add({"msg": taskModel.msg, "index": 0});
-                            Navigator.push(
+                            Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => ChatScreen(
                                         conversation: conversation,
                                         id: 0,
                                         dateTime: '',
-                                        indexNumber: 0)));
+                                        gobackPageIndex: 1)));
                           },
                         );
-                      })
+                      }),
+                  SizedBox(height: 8),
                 ],
               );
             }));

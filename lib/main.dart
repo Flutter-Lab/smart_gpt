@@ -3,11 +3,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:smart_gpt_ai/constants/purchase_api.dart';
 import 'package:smart_gpt_ai/start_screen.dart';
-import 'constants.dart';
+import 'utilities/shared_prefs.dart';
+import 'constants/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await PurchaseApi.init();
+
+  final sharedPreferencesUtil = SharedPreferencesUtil();
+  await sharedPreferencesUtil.initialize();
+
   await Hive.initFlutter();
 
   // Open the Hive box

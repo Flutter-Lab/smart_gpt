@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import '../constants.dart';
+import '../constants/constants.dart';
 import 'text_widget.dart';
 
 class HistoryItemWidget extends StatelessWidget {
@@ -20,7 +20,7 @@ class HistoryItemWidget extends StatelessWidget {
     return Card(
       color: ColorPallate.cardColor,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(4.0),
         child: ListTile(
           title: TextWidget(
             label: title,

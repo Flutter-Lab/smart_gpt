@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "168151078817",
+    "project_id": "smart-gpt-ai-7f206",
+    "storage_bucket": "smart-gpt-ai-7f206.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:168151078817:android:ee25483b2f9ae322771de0",
+        "android_client_info": {
+          "package_name": "com.xpertitlab.smart_gpt_ai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "168151078817-9fmlnflvgk8n8fnds4tj14230uhrh2oc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOqu0H-63-UILrJXZmtk7u-ehr12KsszI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "168151078817-9fmlnflvgk8n8fnds4tj14230uhrh2oc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/gridview_test_screen.dart';
 import 'package:smart_gpt_ai/history_page.dart';
-import 'package:smart_gpt_ai/homepage.dart';
+import 'package:smart_gpt_ai/home_screen.dart';
 import 'package:smart_gpt_ai/smart_task_screen.dart';
 
-import 'constants.dart';
+import 'constants/constants.dart';
 
 class StartScreen extends StatefulWidget {
   final int pageIndex;

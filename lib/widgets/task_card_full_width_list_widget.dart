@@ -4,7 +4,7 @@ import 'package:smart_gpt_ai/widgets/task_card_widget_full_width.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
 import '../../data/homepage_taskcard_list_data.dart';
-import '../chatscreen.dart';
+import '../chat_screen.dart';
 import '../models/full_width_task_card_model.dart';
 
 class TaskCardSectionListWidget extends StatelessWidget {
@@ -42,7 +42,7 @@ class TaskCardSectionListWidget extends StatelessWidget {
                                     conversation: conversation,
                                     id: 0,
                                     dateTime: '',
-                                    indexNumber: 0)));
+                                    gobackPageIndex: 0)));
                       },
                     ),
                 ],

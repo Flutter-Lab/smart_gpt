@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/models/half_width_task_card_model.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
-import '../../constants.dart';
+import '../constants/constants.dart';
 
 class TaskCardHalfWidth extends StatelessWidget {
   final HalfWidthTaskCardModel taskModel;
@@ -37,7 +37,6 @@ class TaskCardHalfWidth extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     taskModel.title,
@@ -47,6 +46,7 @@ class TaskCardHalfWidth extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: 5),
                   TextWidget(
                     label: taskModel.subtitle,
                     color: Colors.grey,
@@ -57,7 +57,6 @@ class TaskCardHalfWidth extends StatelessWidget {
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
                 TextWidget(
                   label: taskModel.icon,
