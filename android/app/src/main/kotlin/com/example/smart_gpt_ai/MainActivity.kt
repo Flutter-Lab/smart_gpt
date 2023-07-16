@@ -1,4 +1,4 @@
-package com.example.smart_gpt_ai
+package com.xpertitlab.smart_gpt_ai
 
 import io.flutter.embedding.android.FlutterActivity
 

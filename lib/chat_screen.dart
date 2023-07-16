@@ -116,7 +116,7 @@ class _ChatScreenState extends State<ChatScreen> {
       count++;
     }
 
-    if (totalSent < 9) {
+    if (totalSent < freeChatLimit - 1) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Perform auto-scrolling here
         scrollController.animateTo(
@@ -127,7 +127,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
 
-    return totalSent < 9
+    return totalSent < freeChatLimit - 1
         ? Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,

@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:smart_gpt_ai/gridview_test_screen.dart';
 import 'package:smart_gpt_ai/history_page.dart';
 import 'package:smart_gpt_ai/home_screen.dart';
 import 'package:smart_gpt_ai/smart_task_screen.dart';

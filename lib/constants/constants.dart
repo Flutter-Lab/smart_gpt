@@ -13,3 +13,5 @@ class ColorPallate {
   static const Color light2 = Color(0xFF6c757d);
   static const Color redColor = Color(0xFFE63946);
 }
+
+const freeChatLimit = 3;

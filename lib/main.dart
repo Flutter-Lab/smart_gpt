@@ -3,13 +3,29 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:smart_gpt_ai/constants/purchase_api.dart';
+import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
+import 'package:smart_gpt_ai/in_app_purchase_testing/in_app_purchase_homepage.dart';
 import 'package:smart_gpt_ai/start_screen.dart';
 import 'utilities/shared_prefs.dart';
 import 'constants/constants.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+
+// Gives the option to override in tests.
+class IAPConnection {
+  static InAppPurchase? _instance;
+  static set instance(InAppPurchase value) {
+    _instance = value;
+  }
+
+  static InAppPurchase get instance {
+    _instance ??= InAppPurchase.instance;
+    return _instance!;
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await PurchaseApi.init();
 
   final sharedPreferencesUtil = SharedPreferencesUtil();
@@ -39,7 +55,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
       home: const StartScreen(pageIndex: 0),
-      // home: ChatScreen(),
+      // home: MyHomePage(
+      //   title: 'In App Home Page',
+      // ),
     );
   }
 }

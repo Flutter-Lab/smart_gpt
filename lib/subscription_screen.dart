@@ -5,6 +5,10 @@ import 'package:smart_gpt_ai/start_screen.dart';
 import 'package:smart_gpt_ai/utilities/shared_prefs.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
+import 'glassfy_iap/paywall_widget.dart';
+import 'glassfy_iap/purchase_api.dart';
+import 'glassfy_iap/utils.dart';
+
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
 
@@ -31,29 +35,22 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 Spacer(),
                 ElevatedButton(onPressed: () {}, child: Text('Yearly Access')),
                 SizedBox(height: 8),
-                ElevatedButton(
-                    onPressed: () {
-                      // Navigator.pushReplacement(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => StartScreen(pageIndex: 1)));
-                    },
-                    child: Text('Weekly Access')),
+                ElevatedButton(onPressed: () {}, child: Text('Weekly Access')),
                 SizedBox(height: 8),
                 SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        sharedPreferencesUtil.saveInt('totalSent', 0);
+                      // onPressed: () {
+                      //   sharedPreferencesUtil.saveInt('totalSent', 0);
+                      //   print('Total Chat Sent: $totalSent');
+                      //   Navigator.pushReplacement(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //           builder: (context) =>
+                      //               StartScreen(pageIndex: 1)));
+                      // }
+                      onPressed: fetchOffers,
 
-                        print('Total Chat Sent: $totalSent');
-
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    StartScreen(pageIndex: 1)));
-                      },
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text('Continue',
@@ -71,5 +68,26 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         ),
       ),
     );
+  }
+
+  Future fetchOffers() async {
+    final offerings = await PurchaseApi.fetchOffers();
+
+    final offer = offerings
+        .singleWhere((offering) => offering.offeringId == 'Premium-Yearly');
+
+    if (!mounted) return;
+    Utils.showSheet(
+        context,
+        (context) => PayWallWidget(
+            title: 'Get PRO Access',
+            description: 'Upgrade to pro plan to enjoy unlimited chat',
+            offer: offer,
+            onClickedSku: (sku) async {
+              await PurchaseApi.purchaseSku(sku);
+
+              if (!mounted) return;
+              Navigator.pop(context);
+            }));
   }
 }
