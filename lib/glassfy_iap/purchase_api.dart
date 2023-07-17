@@ -20,22 +20,33 @@ class PurchaseApi {
     }
   }
 
+  // print('Current Permission ID is: ${permission.permissionId}');
   static Future<GlassfyTransaction?> purchaseSku(GlassfySku sku) async {
     try {
       GlassfyTransaction transaction = await Glassfy.purchaseSku(sku);
 
       try {
-        var p = transaction.permissions?.all?.singleWhere((permission) {
-          print('Current Permission ID is: ${permission.permissionId}');
-          return permission.permissionId == 'premium';
-        });
-        print('ID is: ${p!.permissionId}');
-        if (p.isValid == true) {
-          // unlock aFeature
-          print('Purchase Successfull');
+        GlassfyPermission? p;
+        var temp;
+        try {
+          // p = transaction.permissions?.all?.singleWhere((permission) {
+          //   print('permission ID: ${permission.permissionId}');
+
+          //   return permission.permissionId == 'premium';
+          // });
+
+          p = transaction.permissions!.all![0];
+
+          temp = p.permissionId;
+          print(temp);
+        } catch (error) {
+          print('error on catch');
+        }
+
+        if (temp == 'premium') {
+          print('purchase successful');
         } else {
-          // lock aFeature
-          print('Purchase Unsuccesfull');
+          print('purchase unsuccessful');
         }
       } catch (e) {
         // initialization error
