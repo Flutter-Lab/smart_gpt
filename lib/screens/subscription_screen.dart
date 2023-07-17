@@ -1,13 +1,10 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, sort_child_properties_last
 
 import 'package:flutter/material.dart';
-import 'package:smart_gpt_ai/start_screen.dart';
 import 'package:smart_gpt_ai/utilities/shared_prefs.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
-import 'glassfy_iap/paywall_widget.dart';
-import 'glassfy_iap/purchase_api.dart';
-import 'glassfy_iap/utils.dart';
+import '../glassfy_iap/purchase_api.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
@@ -17,37 +14,68 @@ class SubscriptionScreen extends StatefulWidget {
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
+  int selectOption = 2;
+  String offerID = '';
+
   @override
   Widget build(BuildContext context) {
     final sharedPreferencesUtil = SharedPreferencesUtil();
 
     int totalSent = sharedPreferencesUtil.getInt('totalSent');
+
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.all(8),
         child: SafeArea(
           child: Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                SizedBox(height: 24),
                 TextWidget(label: 'Get Pro Access', fontSize: 30),
-                SizedBox(height: 16),
                 Spacer(),
-                ElevatedButton(onPressed: () {}, child: Text('Yearly Access')),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      selectOption = 1;
+                      offerID = 'Premium-Yearly';
+                    });
+                  },
+                  child: Text(
+                    'Yearly Access',
+                    style: TextStyle(
+                        color:
+                            selectOption == 1 ? Colors.white : Colors.black87),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          selectOption == 1 ? Colors.green : Colors.white),
+                ),
                 SizedBox(height: 8),
-                ElevatedButton(onPressed: () {}, child: Text('Weekly Access')),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      selectOption = 2;
+                      offerID = 'Pro-Access';
+                    });
+                  },
+                  child: Text(
+                    'Weekly Access',
+                    style: TextStyle(
+                      color: selectOption == 2 ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          selectOption == 2 ? Colors.green : Colors.white,
+                      side: selectOption == 2
+                          ? BorderSide(width: 2, color: Colors.amber)
+                          : BorderSide(width: 0, color: Colors.amber)),
+                ),
                 SizedBox(height: 8),
                 SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      // onPressed: () {
-                      //   sharedPreferencesUtil.saveInt('totalSent', 0);
-                      //   print('Total Chat Sent: $totalSent');
-                      //   Navigator.pushReplacement(
-                      //       context,
-                      //       MaterialPageRoute(
-                      //           builder: (context) =>
-                      //               StartScreen(pageIndex: 1)));
                       // }
                       onPressed: fetchOffers,
 
@@ -62,6 +90,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         foregroundColor: Colors.white,
                       ),
                     )),
+                SizedBox(height: 24),
               ],
             ),
           ),
@@ -73,21 +102,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   Future fetchOffers() async {
     final offerings = await PurchaseApi.fetchOffers();
 
-    final offer = offerings
-        .singleWhere((offering) => offering.offeringId == 'Premium-Yearly');
+    final offer =
+        offerings.singleWhere((offering) => offering.offeringId == offerID);
 
     if (!mounted) return;
-    Utils.showSheet(
-        context,
-        (context) => PayWallWidget(
-            title: 'Get PRO Access',
-            description: 'Upgrade to pro plan to enjoy unlimited chat',
-            offer: offer,
-            onClickedSku: (sku) async {
-              await PurchaseApi.purchaseSku(sku);
 
-              if (!mounted) return;
-              Navigator.pop(context);
-            }));
+    await PurchaseApi.purchaseSku(offer.skus![0]);
   }
 }

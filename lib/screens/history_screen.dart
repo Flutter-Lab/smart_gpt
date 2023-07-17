@@ -3,20 +3,21 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:smart_gpt_ai/chat_screen.dart';
+
 import 'package:smart_gpt_ai/widgets/history_item_widget.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
-import 'constants/constants.dart';
+import '../constants/constants.dart';
+import 'chat_screen.dart';
 
-class HistoryPage extends StatefulWidget {
-  const HistoryPage({super.key});
+class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
 
   @override
-  State<HistoryPage> createState() => _HistoryPageState();
+  State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class _HistoryPageState extends State<HistoryPage> {
+class _HistoryScreenState extends State<HistoryScreen> {
   var myBox = Hive.box('myBox');
   List<Map<String, dynamic>> oldConv = [];
   int count = 0;

@@ -4,8 +4,8 @@ import 'package:smart_gpt_ai/widgets/task_card_widget_full_width.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
 import '../../data/homepage_taskcard_list_data.dart';
-import '../chat_screen.dart';
 import '../models/full_width_task_card_model.dart';
+import '../screens/chat_screen.dart';
 
 class TaskCardSectionListWidget extends StatelessWidget {
   const TaskCardSectionListWidget({super.key});

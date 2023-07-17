@@ -4,24 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
-import 'package:smart_gpt_ai/in_app_purchase_testing/in_app_purchase_homepage.dart';
-import 'package:smart_gpt_ai/start_screen.dart';
+import 'screens/start_screen.dart';
 import 'utilities/shared_prefs.dart';
 import 'constants/constants.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
+// import 'package:in_app_purchase/in_app_purchase.dart';
 
-// Gives the option to override in tests.
-class IAPConnection {
-  static InAppPurchase? _instance;
-  static set instance(InAppPurchase value) {
-    _instance = value;
-  }
+// // Gives the option to override in tests.
+// class IAPConnection {
+//   static InAppPurchase? _instance;
+//   static set instance(InAppPurchase value) {
+//     _instance = value;
+//   }
 
-  static InAppPurchase get instance {
-    _instance ??= InAppPurchase.instance;
-    return _instance!;
-  }
-}
+//   static InAppPurchase get instance {
+//     _instance ??= InAppPurchase.instance;
+//     return _instance!;
+//   }
+// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,10 +1,9 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
-import 'package:smart_gpt_ai/constants/screen_utils.dart';
 import 'package:smart_gpt_ai/widgets/task_card_full_width_list_widget.dart';
+import '../constants/constants.dart';
+import '../widgets/text_widget.dart';
 import 'chat_screen.dart';
-import 'constants/constants.dart';
-import 'widgets/text_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

@@ -1,11 +1,10 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:smart_gpt_ai/history_page.dart';
-import 'package:smart_gpt_ai/home_screen.dart';
-import 'package:smart_gpt_ai/smart_task_screen.dart';
-
-import 'constants/constants.dart';
+import '../constants/constants.dart';
+import 'history_screen.dart';
+import 'home_screen.dart';
+import 'smart_task_screen.dart';
 
 class StartScreen extends StatefulWidget {
   final int pageIndex;
@@ -27,7 +26,7 @@ class _StartScreenState extends State<StartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> pages = [HomeScreen(), SmartTaskScreen(), HistoryPage()];
+    List<Widget> pages = [HomeScreen(), SmartTaskScreen(), HistoryScreen()];
     return Scaffold(
       body: pages[currentPageIndex],
       bottomNavigationBar: BottomNavigationBar(

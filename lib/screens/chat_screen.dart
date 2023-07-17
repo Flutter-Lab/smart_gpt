@@ -7,14 +7,13 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:intl/intl.dart';
 
 import 'package:smart_gpt_ai/old/services/api_service.dart';
-import 'package:smart_gpt_ai/start_screen.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_gpt_ai/subscription_screen.dart';
+import '../constants/constants.dart';
+import '../utilities/shared_prefs.dart';
+import '../widgets/text_widget.dart';
 
-import 'constants/constants.dart';
-import 'utilities/shared_prefs.dart';
-import 'widgets/text_widget.dart';
+import 'start_screen.dart';
+import 'subscription_screen.dart';
 
 final myBox = Hive.box('myBox');
 

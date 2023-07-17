@@ -6,7 +6,7 @@ import 'package:smart_gpt_ai/models/half_width_task_card_model.dart';
 import 'package:smart_gpt_ai/widgets/task_card_widget_half_width.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
-import '../chat_screen.dart';
+import '../screens/chat_screen.dart';
 
 class TaskCardHalfWidthGridListWidget extends StatelessWidget {
   const TaskCardHalfWidthGridListWidget({super.key});

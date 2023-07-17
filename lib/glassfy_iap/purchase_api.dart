@@ -22,11 +22,55 @@ class PurchaseApi {
 
   static Future<GlassfyTransaction?> purchaseSku(GlassfySku sku) async {
     try {
-      
-      return await Glassfy.purchaseSku(sku);
+      GlassfyTransaction transaction = await Glassfy.purchaseSku(sku);
+
+      try {
+        var p = transaction.permissions?.all?.singleWhere((permission) {
+          print('Current Permission ID is: ${permission.permissionId}');
+          return permission.permissionId == 'premium';
+        });
+        print('ID is: ${p!.permissionId}');
+        if (p.isValid == true) {
+          // unlock aFeature
+          print('Purchase Successfull');
+        } else {
+          // lock aFeature
+          print('Purchase Unsuccesfull');
+        }
+      } catch (e) {
+        // initialization error
+        print('Purchase Validation Error:');
+        print(e);
+      }
+
+      // print('Transaction::');
+      // print(transaction.productIdentifier.);
+
+      return transaction;
     } catch (e) {
       debugPrint(e.toString());
       return null;
     }
+  }
+}
+
+void purchaseValidation(GlassfyTransaction transaction) {
+  try {
+    var p = transaction.permissions?.all?.singleWhere((permission) {
+      print('Current Permission ID is: ${permission.permissionId}');
+      return permission.permissionId == 'premium';
+    });
+    print('ID is: ${p!.permissionId}');
+    if (p?.isValid == true) {
+      // unlock aFeature
+      print('Purchase Successfull');
+    } else {
+      // lock aFeature
+      print('Purchase Unsuccesfull');
+    }
+  } catch (e) {
+    // initialization error
+    print('Purchase Validation Error:');
+    print(e);
   }
 }
