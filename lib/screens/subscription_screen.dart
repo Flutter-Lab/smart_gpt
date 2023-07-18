@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_gpt_ai/screens/start_screen.dart';
-import 'package:smart_gpt_ai/utilities/shared_prefs.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
 import '../glassfy_iap/purchase_api.dart';
@@ -21,8 +20,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final sharedPreferencesUtil = SharedPreferencesUtil();
-
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.all(8),

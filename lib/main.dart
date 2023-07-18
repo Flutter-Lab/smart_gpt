@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
-import 'package:smart_gpt_ai/screens/test_screen.dart';
 import 'firebase_options.dart';
 import 'screens/start_screen.dart';
 import 'utilities/shared_prefs.dart';

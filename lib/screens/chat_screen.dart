@@ -7,7 +7,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
 
-import 'package:smart_gpt_ai/old/services/api_service.dart';
+import 'package:smart_gpt_ai/services/api_service.dart';
 
 import '../constants/constants.dart';
 import '../utilities/shared_prefs.dart';
