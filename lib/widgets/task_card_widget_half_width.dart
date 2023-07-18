@@ -43,14 +43,14 @@ class TaskCardHalfWidth extends StatelessWidget {
                     maxLines: 1,
                     style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 17,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 5),
                   TextWidget(
                     label: taskModel.subtitle,
                     color: Colors.grey,
-                    fontSize: 15,
+                    fontSize: 14,
                   ),
                 ],
               ),

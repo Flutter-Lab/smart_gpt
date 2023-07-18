@@ -24,4 +24,12 @@ class SharedPreferencesUtil {
   int getInt(String key, {int defaultValue = 0}) {
     return _prefs.getInt(key) ?? defaultValue;
   }
+
+  void saveBool(String key, bool value) {
+    _prefs.setBool(key, value);
+  }
+
+  bool getBool(String key, {bool defaultValue = false}) {
+    return _prefs.getBool(key) ?? defaultValue;
+  }
 }

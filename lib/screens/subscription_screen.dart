@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, sort_child_properties_last
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_gpt_ai/screens/start_screen.dart';
 import 'package:smart_gpt_ai/utilities/shared_prefs.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
@@ -15,13 +17,11 @@ class SubscriptionScreen extends StatefulWidget {
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
   int selectOption = 2;
-  String offerID = '';
+  String offerID = 'Pro-Access';
 
   @override
   Widget build(BuildContext context) {
     final sharedPreferencesUtil = SharedPreferencesUtil();
-
-    int totalSent = sharedPreferencesUtil.getInt('totalSent');
 
     return Scaffold(
       body: Padding(
@@ -107,6 +107,21 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
     if (!mounted) return;
 
-    await PurchaseApi.purchaseSku(offer.skus![0]);
+    var transaction = await PurchaseApi.purchaseSku(offer.skus![0]);
+
+    //Purchase Proccessing
+    if (transaction != null) {
+      bool isValidPurchase = await PurchaseApi.isValidPurchase(transaction);
+
+      if (isValidPurchase) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('isPremium', true);
+
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => StartScreen(pageIndex: 0)));
+      }
+    } else {
+      print('No Transaction Found');
+    }
   }
 }

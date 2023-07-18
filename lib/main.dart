@@ -1,34 +1,30 @@
 import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
+import 'package:smart_gpt_ai/screens/test_screen.dart';
+import 'firebase_options.dart';
 import 'screens/start_screen.dart';
 import 'utilities/shared_prefs.dart';
 import 'constants/constants.dart';
-// import 'package:in_app_purchase/in_app_purchase.dart';
-
-// // Gives the option to override in tests.
-// class IAPConnection {
-//   static InAppPurchase? _instance;
-//   static set instance(InAppPurchase value) {
-//     _instance = value;
-//   }
-
-//   static InAppPurchase get instance {
-//     _instance ??= InAppPurchase.instance;
-//     return _instance!;
-//   }
-// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await PurchaseApi.init();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   final sharedPreferencesUtil = SharedPreferencesUtil();
   await sharedPreferencesUtil.initialize();
+
+  await PurchaseApi.init();
+
+  bool isUserPro = await PurchaseApi.isUserPremium();
+
+  sharedPreferencesUtil.saveBool('isPremium', isUserPro);
 
   await Hive.initFlutter();
 
@@ -54,6 +50,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
       home: const StartScreen(pageIndex: 0),
+      // home: const TestScreen(),
       // home: MyHomePage(
       //   title: 'In App Home Page',
       // ),

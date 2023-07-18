@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
 
 import 'package:smart_gpt_ai/old/services/api_service.dart';
 
@@ -76,15 +77,6 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   // Perform auto-scrolling here
-    //   scrollController.animateTo(
-    //     scrollController.position.maxScrollExtent,
-    //     duration: Duration(milliseconds: 1000),
-    //     curve: Curves.easeInOut,
-    //   );
-    // });
   }
 
   @override
@@ -98,6 +90,8 @@ class _ChatScreenState extends State<ChatScreen> {
     final sharedPreferencesUtil = SharedPreferencesUtil();
 
     int totalSent = sharedPreferencesUtil.getInt('totalSent');
+
+    bool isPremium = sharedPreferencesUtil.getBool('isPremium');
 
     conv = widget.conversation;
     id = widget.id;
@@ -115,7 +109,7 @@ class _ChatScreenState extends State<ChatScreen> {
       count++;
     }
 
-    if (totalSent < freeChatLimit - 1) {
+    if (totalSent < freeChatLimit - 1 || isPremium) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Perform auto-scrolling here
         scrollController.animateTo(
@@ -126,254 +120,288 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
 
-    return totalSent < freeChatLimit - 1
-        ? Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.navigate_before,
-                      color: Colors.white,
-                    ),
-                    onPressed: () async {
-                      DateTime now = DateTime.now();
-                      int milliseconds = now.millisecondsSinceEpoch;
-                      String uniqueId = '$milliseconds';
-                      String formattedDate =
-                          DateFormat('dd/MM/yyyy hh:mm a').format(now);
-                      if (checkLength == conv.length) {
-                        //if true means no changes happed.
-                      } else {
-                        if (id == 0) {
-                          List<Map<String, dynamic>> conWithTime = [];
-                          conWithTime.add({
-                            "conversation": conv,
-                            "ID": uniqueId,
-                            "timeStamp": formattedDate
-                          });
-                          await myBox.add(conWithTime);
-                        } else {
-                          modifiedList = [];
-                          final hiveList = myBox.values.toList();
-                          modifiedList.add({
-                            "conversation": hiveList[indexNumber][0]
-                                ["conversation"],
-                            "ID": uniqueId,
-                            "timeStamp": formattedDate
-                          });
-                          myBox.put(indexNumber, modifiedList);
+    return totalSent < freeChatLimit - 1 || isPremium
+        ? FutureBuilder<bool>(
+            future: PurchaseApi.isUserPremium(),
+            builder: (context, snapshot) {
+              return !snapshot.hasData
+                  ? CircularProgressIndicator()
+                  : Scaffold(
+                      appBar: AppBar(
+                        automaticallyImplyLeading: false,
+                        title: Stack(
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.navigate_before,
+                                color: Colors.white,
+                              ),
+                              onPressed: () async {
+                                DateTime now = DateTime.now();
+                                int milliseconds = now.millisecondsSinceEpoch;
+                                String uniqueId = '$milliseconds';
+                                String formattedDate =
+                                    DateFormat('dd/MM/yyyy hh:mm a')
+                                        .format(now);
+                                if (checkLength == conv.length) {
+                                  //if true means no changes happed.
+                                } else {
+                                  if (id == 0) {
+                                    List<Map<String, dynamic>> conWithTime = [];
+                                    conWithTime.add({
+                                      "conversation": conv,
+                                      "ID": uniqueId,
+                                      "timeStamp": formattedDate
+                                    });
+                                    await myBox.add(conWithTime);
+                                  } else {
+                                    modifiedList = [];
+                                    final hiveList = myBox.values.toList();
+                                    modifiedList.add({
+                                      "conversation": hiveList[indexNumber][0]
+                                          ["conversation"],
+                                      "ID": uniqueId,
+                                      "timeStamp": formattedDate
+                                    });
+                                    myBox.put(indexNumber, modifiedList);
 
-                          addedConversation.forEach((element) async {
-                            await hiveList[indexNumber][0]["conversation"]
-                                .add(element);
-                          });
-                        }
-                      }
+                                    addedConversation.forEach((element) async {
+                                      await hiveList[indexNumber][0]
+                                              ["conversation"]
+                                          .add(element);
+                                    });
+                                  }
+                                }
 
-                      Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) {
-                        return StartScreen(pageIndex: widget.gobackPageIndex);
-                      }));
-                    },
-                  ),
-                  const Center(
-                    child: Text(
-                      "Chat screen",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  )
-                ],
-              ),
-              backgroundColor: ColorPallate.cardColor,
-            ),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Flexible(
-                      child: ListView.builder(
-                        controller: scrollController,
-                        itemCount: widget.conversation.length,
-                        itemBuilder: (context, index) {
-                          String msg = widget.conversation[index]["msg"];
-                          int chatIndex = widget.conversation[index]["index"];
-
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
+                                Navigator.pushReplacement(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return StartScreen(
+                                      pageIndex: widget.gobackPageIndex);
+                                }));
+                              },
+                            ),
+                            const Center(
+                              child: Text(
+                                "Chat screen",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            )
+                          ],
+                        ),
+                        backgroundColor: ColorPallate.cardColor,
+                      ),
+                      body: SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
                             children: [
                               Flexible(
-                                child: Container(
-                                  margin: EdgeInsets.only(
-                                    top: 4,
-                                    bottom: 4,
-                                    left: chatIndex == 0 ? 24 : 4,
-                                    right: chatIndex == 0 ? 4 : 24,
-                                  ),
-                                  decoration: BoxDecoration(
-                                      color: chatIndex == 0
-                                          ? const Color.fromARGB(
-                                              255, 28, 196, 103)
-                                          : cardColor,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: const Radius.circular(12),
-                                        topRight: const Radius.circular(12),
-                                        bottomLeft: Radius.circular(
-                                            chatIndex == 0 ? 12 : 0),
-                                        bottomRight: Radius.circular(
-                                            chatIndex == 0 ? 0 : 12),
-                                      )),
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Flexible(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            chatIndex == 0
-                                                ? Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
+                                child: ListView.builder(
+                                  controller: scrollController,
+                                  itemCount: widget.conversation.length,
+                                  itemBuilder: (context, index) {
+                                    String msg =
+                                        widget.conversation[index]["msg"];
+                                    int chatIndex =
+                                        widget.conversation[index]["index"];
+
+                                    return Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Flexible(
+                                          child: Container(
+                                            margin: EdgeInsets.only(
+                                              top: 4,
+                                              bottom: 4,
+                                              left: chatIndex == 0 ? 24 : 4,
+                                              right: chatIndex == 0 ? 4 : 24,
+                                            ),
+                                            decoration: BoxDecoration(
+                                                color: chatIndex == 0
+                                                    ? const Color.fromARGB(
+                                                        255, 28, 196, 103)
+                                                    : cardColor,
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft:
+                                                      const Radius.circular(12),
+                                                  topRight:
+                                                      const Radius.circular(12),
+                                                  bottomLeft: Radius.circular(
+                                                      chatIndex == 0 ? 12 : 0),
+                                                  bottomRight: Radius.circular(
+                                                      chatIndex == 0 ? 0 : 12),
+                                                )),
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Flexible(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
                                                     children: [
-                                                      Expanded(
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .end,
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: [
-                                                            Flexible(
-                                                              child: TextWidget(
-                                                                label: msg,
+                                                      chatIndex == 0
+                                                          ? Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                Expanded(
+                                                                  child: Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .end,
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
+                                                                    children: [
+                                                                      Flexible(
+                                                                        child:
+                                                                            TextWidget(
+                                                                          label:
+                                                                              msg,
+                                                                          fontSize:
+                                                                              16,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            )
+                                                          : DefaultTextStyle(
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Colors
+                                                                    .white,
                                                                 fontSize: 16,
                                                               ),
+                                                              child: index + 1 ==
+                                                                          widget
+                                                                              .conversation
+                                                                              .length &&
+                                                                      isRepying
+                                                                  ? AnimatedTextKit(
+                                                                      animatedTexts: [
+                                                                        TypewriterAnimatedText(
+                                                                          msg,
+                                                                          speed:
+                                                                              Duration(milliseconds: 10),
+                                                                        ),
+                                                                      ],
+                                                                      isRepeatingAnimation:
+                                                                          false,
+                                                                      stopPauseOnTap:
+                                                                          true,
+                                                                      onFinished:
+                                                                          () {
+                                                                        if (totalSent <
+                                                                            freeChatLimit) {
+                                                                          totalSent +=
+                                                                              1;
+                                                                          sharedPreferencesUtil.saveInt(
+                                                                              'totalSent',
+                                                                              totalSent);
+                                                                          print(
+                                                                              'Total Chat Sent: $totalSent');
+                                                                        }
+                                                                        setState(
+                                                                            () {
+                                                                          isRepying =
+                                                                              false;
+                                                                        });
+                                                                      },
+                                                                    )
+                                                                  : Text(msg),
                                                             ),
-                                                          ],
-                                                        ),
-                                                      ),
                                                     ],
-                                                  )
-                                                : DefaultTextStyle(
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 16,
-                                                    ),
-                                                    child: index + 1 ==
-                                                                widget
-                                                                    .conversation
-                                                                    .length &&
-                                                            isRepying
-                                                        ? AnimatedTextKit(
-                                                            animatedTexts: [
-                                                              TypewriterAnimatedText(
-                                                                msg,
-                                                                speed: Duration(
-                                                                    milliseconds:
-                                                                        10),
-                                                              ),
-                                                            ],
-                                                            isRepeatingAnimation:
-                                                                false,
-                                                            stopPauseOnTap:
-                                                                true,
-                                                            onFinished: () {
-                                                              // int totalSent =
-                                                              //     sharedPreferencesUtil
-                                                              //         .getInt(
-                                                              //             'totalSent');
-                                                              if (totalSent <
-                                                                  10) {
-                                                                totalSent += 1;
-                                                                sharedPreferencesUtil
-                                                                    .saveInt(
-                                                                        'totalSent',
-                                                                        totalSent);
-                                                                print(
-                                                                    'Total Chat Sent: $totalSent');
-                                                              }
-                                                              setState(() {
-                                                                isRepying =
-                                                                    false;
-                                                              });
-                                                            },
-                                                          )
-                                                        : Text(msg),
                                                   ),
-                                          ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              if (gettingReply)
+                                const SpinKitThreeBounce(
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+
+                              //Send Message Input Section
+                              Container(
+                                padding: const EdgeInsets.all(8.0),
+                                color: ColorPallate.cardColor,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        padding: const EdgeInsets.all(16.0),
+                                        decoration: BoxDecoration(
+                                          color: ColorPallate.bgColor,
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        child: TextField(
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                          controller: controller,
+                                          onSubmitted: (value) async {},
+                                          decoration:
+                                              const InputDecoration.collapsed(
+                                                  hintText:
+                                                      'How can I help you?',
+                                                  hintStyle: TextStyle(
+                                                      color: Colors.grey)),
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () async {
+                                        //If freeLimit cross and User is not Premium
+                                        //Then Go to Subscription Scree
+
+                                        if (totalSent > freeChatLimit &&
+                                            !isPremium) {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      SubscriptionScreen()));
+                                        }
+                                        question = controller.text;
+                                        controller.clear();
+                                        setState(() {
+                                          conv.add(
+                                              {"msg": question, "index": 0});
+                                          addedConversation.add(
+                                              {"msg": question, "index": 0});
+                                        });
+                                        replyFunction();
+                                        setState(() {
+                                          isRepying = true;
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.send,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
-                          );
-                        },
-                      ),
-                    ),
-                    if (gettingReply)
-                      const SpinKitThreeBounce(
-                        color: Colors.white,
-                        size: 18,
-                      ),
-
-                    //Send Message Input Section
-                    Container(
-                      padding: const EdgeInsets.all(8.0),
-                      color: ColorPallate.cardColor,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                color: ColorPallate.bgColor,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: TextField(
-                                style: const TextStyle(color: Colors.white),
-                                controller: controller,
-                                onSubmitted: (value) async {},
-                                decoration: const InputDecoration.collapsed(
-                                    hintText: 'How can I help you?',
-                                    hintStyle: TextStyle(color: Colors.grey)),
-                              ),
-                            ),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              question = controller.text;
-                              controller.clear();
-                              setState(() {
-                                conv.add({"msg": question, "index": 0});
-                                addedConversation
-                                    .add({"msg": question, "index": 0});
-                              });
-                              replyFunction();
-                              setState(() {
-                                isRepying = true;
-                              });
-                            },
-                            icon: const Icon(
-                              Icons.send,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
+                    );
+            })
         : SubscriptionScreen();
   }
 }
