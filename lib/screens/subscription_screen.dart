@@ -6,6 +6,7 @@ import 'package:smart_gpt_ai/screens/start_screen.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
 import '../glassfy_iap/purchase_api.dart';
+import '../widgets/premium_features_widget.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
@@ -22,75 +23,102 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(8),
-        child: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(height: 24),
-                TextWidget(label: 'Get Pro Access', fontSize: 30),
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      selectOption = 1;
-                      offerID = 'Premium-Yearly';
-                    });
-                  },
-                  child: Text(
-                    'Yearly Access',
-                    style: TextStyle(
-                        color:
-                            selectOption == 1 ? Colors.white : Colors.black87),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          selectOption == 1 ? Colors.green : Colors.white),
+        padding: EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: 24),
+            TextWidget(
+              label: 'Get Pro Access',
+              fontSize: 30,
+            ),
+            SizedBox(height: 48),
+            Container(child: PremiumFeaturesWidget()),
+            Spacer(),
+            //Yearly Access Card
+            Card(
+              color: selectOption == 1
+                  ? const Color.fromARGB(255, 2, 92, 165)
+                  : Colors.black87,
+              child: ListTile(
+                onTap: () {
+                  setState(() {
+                    selectOption = 1;
+                    offerID = 'Premium-Yearly';
+                  });
+                },
+                selectedColor:
+                    selectOption == 1 ? Colors.white : Colors.black87,
+                title: TextWidget(
+                  label: 'Yearly Access',
+                  fontSize: 16,
+                  // color: ,
                 ),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () {
+                subtitle: TextWidget(
+                  label: '\$34.99 / year',
+                  fontSize: 14,
+                ),
+                trailing: TextWidget(
+                  label: '     Only\n\$0.67/week',
+                  fontSize: 14,
+                ),
+                leading: Icon(
+                  Icons.check,
+                  color: selectOption == 1 ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+            //Weekly Access Card
+            Card(
+              color: selectOption == 2
+                  ? const Color.fromARGB(255, 2, 92, 165)
+                  : Colors.black87,
+              child: ListTile(
+                  onTap: () {
                     setState(() {
                       selectOption = 2;
                       offerID = 'Pro-Access';
                     });
                   },
-                  child: Text(
-                    'Weekly Access',
-                    style: TextStyle(
-                      color: selectOption == 2 ? Colors.white : Colors.black87,
-                    ),
+                  selectedColor:
+                      selectOption == 2 ? Colors.white : Colors.black87,
+                  title: TextWidget(
+                    label: 'Weekly Access',
+                    fontSize: 16,
+                    // color: ,
+                  ),
+                  subtitle: TextWidget(
+                    label: '\$4.99 / week',
+                    fontSize: 14,
+                  ),
+                  leading: Icon(
+                    Icons.check,
+                    color: selectOption == 2 ? Colors.white : Colors.black,
+                  )),
+            ),
+
+            SizedBox(height: 8),
+
+            SizedBox(height: 24),
+            SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  // }
+                  onPressed: fetchOffers,
+
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('Continue',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
                   ),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          selectOption == 2 ? Colors.green : Colors.white,
-                      side: selectOption == 2
-                          ? BorderSide(width: 2, color: Colors.amber)
-                          : BorderSide(width: 0, color: Colors.amber)),
-                ),
-                SizedBox(height: 8),
-                SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      // }
-                      onPressed: fetchOffers,
-
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text('Continue',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold)),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(252, 64, 212, 163),
-                        foregroundColor: Colors.white,
-                      ),
-                    )),
-                SizedBox(height: 24),
-              ],
-            ),
-          ),
+                    backgroundColor: Color.fromARGB(252, 64, 212, 163),
+                    foregroundColor: Colors.white,
+                  ),
+                )),
+            SizedBox(height: 24),
+          ],
         ),
       ),
     );
