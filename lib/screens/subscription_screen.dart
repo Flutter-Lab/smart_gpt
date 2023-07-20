@@ -27,13 +27,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 24),
+            SizedBox(height: 36),
             TextWidget(
               label: 'Get Pro Access',
               fontSize: 30,
             ),
             SizedBox(height: 48),
-            Container(child: PremiumFeaturesWidget()),
+            PremiumFeaturesWidget(),
             Spacer(),
             //Yearly Access Card
             Card(
