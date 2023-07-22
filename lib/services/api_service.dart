@@ -8,7 +8,7 @@ import 'package:smart_gpt_ai/constants/api_consts.dart';
 class ApiService {
   //Send Message fct
   static Future<String> sendMessage({required String message}) async {
-    final url = Uri.parse('$baseUrl//v1/chat/completions');
+    final url = Uri.parse('$baseUrl/v1/chat/completions');
 
     String apiKey = await getApiKey();
 
@@ -18,7 +18,8 @@ class ApiService {
     };
 
     var body = jsonEncode({
-      "model": "gpt-3.5-turbo",
+      // "model": "gpt-3.5-turbo",
+      "model": "gpt-3.5-turbo-0301",
       "messages": [
         {"role": "user", "content": message}
       ],
@@ -32,7 +33,10 @@ class ApiService {
         body: body,
       );
 
-      Map jsonResponse = jsonDecode(response.body);
+      // Decode the response body bytes using utf8.decode
+      String responseBody = utf8.decode(response.bodyBytes);
+
+      Map jsonResponse = jsonDecode(responseBody);
       if (jsonResponse['error'] != null) {
         throw HttpException(jsonResponse['error']['message']);
       }
