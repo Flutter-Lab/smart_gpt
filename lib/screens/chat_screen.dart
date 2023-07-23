@@ -454,30 +454,32 @@ class _ChatScreenState extends State<ChatScreen> {
     List<Map<String, String>> contextList = [];
     int totalWords = 0;
     print('Coversation List: $conv');
-
-    for (Map<String, dynamic> map in conv) {
-      // }
-
+    for (int i = conv.length - 1; i >= 0; i--) {
+      // for (Map<String, dynamic> map in conv) {
+      totalWords += conv[i]['msg'].toString().split(' ').length;
       // conv.forEach((map) {
-      if (totalWords + map['msg'].toString().length > contextLimit) {
+      if (totalWords > 1000) {
         break;
       }
       try {
         contextList.add({
-          'role': map['index'] == 0 ? 'user' : 'assistant',
-          'content': map['msg']
+          'role': conv[i]['index'] == 0 ? 'user' : 'assistant',
+          'content': conv[i]['msg']
         });
 
-        totalWords += map['msg'].toString().split(' ').length;
+        // totalWords += map['msg'].toString().split(' ').length;
       } catch (e) {
         print('Erron in making contest list');
       }
     }
     ;
-
-    print('Context List: $contextList');
+    final hiveList = myBox.values.toList();
+    // print('Context List: $contextList');
+    // print('hivelist: $hiveList');
+    // print(contextList);
     print('Total Words: $totalWords');
-
+    contextList = contextList.reversed.toList();
+    print(contextList);
     return contextList;
   }
 
