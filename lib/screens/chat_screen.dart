@@ -54,14 +54,14 @@ class _ChatScreenState extends State<ChatScreen> {
   late String question = '';
   late String replyByBot;
 
-  ScrollController scrollController = ScrollController();
+  ScrollController? scrollController;
   final sharedPreferencesUtil = SharedPreferencesUtil();
 
   void replyFunction() async {
     setState(() {
       gettingReply = true;
     });
-    await Future.delayed(const Duration(seconds: 1));
+    // await Future.delayed(const Duration(seconds: 1));
 
     String botReply = await ApiService.sendMessage(contextList: getContext());
     setState(() {
@@ -69,11 +69,24 @@ class _ChatScreenState extends State<ChatScreen> {
       conv.add({"msg": botReply, "index": 1});
       addedConversation.add({"msg": botReply, "index": 1});
     });
+
+    scrollToBottom();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollController = ScrollController();
+      scrollToBottom();
+    });
   }
 
   @override
   void dispose() {
-    scrollController.dispose();
+    scrollController!.dispose();
+
     super.dispose();
   }
 
@@ -100,331 +113,336 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     return totalSent < freeChatLimit - 1 || isPremium
-        ? FutureBuilder<bool>(
-            future: PurchaseApi.isUserPremium(),
-            builder: (context, snapshot) {
-              return !snapshot.hasData
-                  ? Center(
-                      child: const SpinKitThreeBounce(
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    )
-                  : Scaffold(
-                      appBar: AppBar(
-                        automaticallyImplyLeading: false,
-                        title: Stack(
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.navigate_before,
-                                color: Colors.white,
-                              ),
-                              onPressed: () async {
-                                DateTime now = DateTime.now();
-                                int milliseconds = now.millisecondsSinceEpoch;
-                                String uniqueId = '$milliseconds';
-                                String formattedDate =
-                                    DateFormat('dd/MM/yyyy hh:mm a')
-                                        .format(now);
-                                if (checkLength == conv.length) {
-                                  //if true means no changes happed.
-                                } else {
-                                  if (id == 0) {
-                                    List<Map<String, dynamic>> conWithTime = [];
-                                    conWithTime.add({
-                                      "conversation": conv,
-                                      "ID": uniqueId,
-                                      "timeStamp": formattedDate
-                                    });
-                                    await myBox.add(conWithTime);
-                                  } else {
-                                    modifiedList = [];
-                                    final hiveList = myBox.values.toList();
-                                    modifiedList.add({
-                                      "conversation": hiveList[indexNumber][0]
-                                          ["conversation"],
-                                      "ID": uniqueId,
-                                      "timeStamp": formattedDate
-                                    });
-                                    myBox.put(indexNumber, modifiedList);
+        ? Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              title: Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.navigate_before,
+                      color: Colors.white,
+                    ),
+                    onPressed: () async {
+                      DateTime now = DateTime.now();
+                      int milliseconds = now.millisecondsSinceEpoch;
+                      String uniqueId = '$milliseconds';
+                      String formattedDate =
+                          DateFormat('dd/MM/yyyy hh:mm a').format(now);
+                      if (checkLength == conv.length) {
+                        //if true means no changes happed.
+                      } else {
+                        if (id == 0) {
+                          List<Map<String, dynamic>> conWithTime = [];
+                          conWithTime.add({
+                            "conversation": conv,
+                            "ID": uniqueId,
+                            "timeStamp": formattedDate
+                          });
+                          await myBox.add(conWithTime);
+                        } else {
+                          modifiedList = [];
+                          final hiveList = myBox.values.toList();
+                          modifiedList.add({
+                            "conversation": hiveList[indexNumber][0]
+                                ["conversation"],
+                            "ID": uniqueId,
+                            "timeStamp": formattedDate
+                          });
+                          myBox.put(indexNumber, modifiedList);
 
-                                    addedConversation.forEach((element) async {
-                                      await hiveList[indexNumber][0]
-                                              ["conversation"]
-                                          .add(element);
-                                    });
-                                  }
-                                }
+                          addedConversation.forEach((element) async {
+                            await hiveList[indexNumber][0]["conversation"]
+                                .add(element);
+                          });
+                        }
+                      }
 
-                                Navigator.pushReplacement(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return StartScreen(
-                                      pageIndex: widget.gobackPageIndex);
-                                }));
-                              },
-                            ),
-                            const Center(
-                              child: Text(
-                                "Chat screen",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            )
-                          ],
-                        ),
-                        backgroundColor: ColorPallate.cardColor,
-                      ),
-                      body: SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              NotificationListener<ScrollNotification>(
-                                //Hide keyboard on Scroll
-                                onNotification: (scrollNotification) {
-                                  if (scrollNotification
-                                          is ScrollUpdateNotification &&
-                                      scrollNotification.metrics.axis ==
-                                          Axis.vertical &&
-                                      scrollNotification.dragDetails != null) {
-                                    // Hide the keyboard when scrolling starts
-                                    FocusScope.of(context).unfocus();
-                                  }
-                                  return false;
-                                },
-                                child: Flexible(
-                                  child: ListView.builder(
-                                    controller: scrollController,
-                                    itemCount: widget.conversation.length,
-                                    itemBuilder: (context, index) {
-                                      String msg =
-                                          widget.conversation[index]["msg"];
-                                      int chatIndex =
-                                          widget.conversation[index]["index"];
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) {
+                        return StartScreen(pageIndex: widget.gobackPageIndex);
+                      }));
+                    },
+                  ),
+                  const Center(
+                    child: Text(
+                      "Chat screen",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  )
+                ],
+              ),
+              backgroundColor: ColorPallate.cardColor,
+            ),
+            body: FutureBuilder<bool>(
+                future: PurchaseApi.isUserPremium(),
+                builder: (context, snapshot) {
+                  return !snapshot.hasData
+                      ? Center(
+                          child: const SpinKitThreeBounce(
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        )
+                      : SafeArea(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                NotificationListener<ScrollNotification>(
+                                  //Hide keyboard on Scroll
+                                  onNotification: (scrollNotification) {
+                                    if (scrollNotification
+                                            is ScrollUpdateNotification &&
+                                        scrollNotification.metrics.axis ==
+                                            Axis.vertical &&
+                                        scrollNotification.dragDetails !=
+                                            null) {
+                                      // Hide the keyboard when scrolling starts
+                                      FocusScope.of(context).unfocus();
+                                    }
+                                    return false;
+                                  },
+                                  child: Flexible(
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      controller: scrollController,
+                                      itemCount: widget.conversation.length,
+                                      itemBuilder: (context, index) {
+                                        String msg =
+                                            widget.conversation[index]["msg"];
+                                        int chatIndex =
+                                            widget.conversation[index]["index"];
 
-                                      return GestureDetector(
-                                        onTap: () {
-                                          // When tapped outside of the keyboard, unfocus the current focus node.
-                                          final currentFocus =
-                                              FocusScope.of(context);
-                                          if (!currentFocus.hasPrimaryFocus) {
-                                            currentFocus.unfocus();
-                                          }
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Flexible(
-                                              child: Container(
-                                                margin: EdgeInsets.only(
-                                                  top: 4,
-                                                  bottom: 8,
-                                                  left: chatIndex == 0 ? 24 : 4,
-                                                  right:
-                                                      chatIndex == 0 ? 4 : 24,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                    color: chatIndex == 0
-                                                        ? const Color.fromARGB(
-                                                            255, 28, 196, 103)
-                                                        : cardColor,
-                                                    borderRadius: BorderRadius.only(
-                                                        topLeft:
-                                                            const Radius.circular(
-                                                                12),
-                                                        topRight:
-                                                            const Radius.circular(
-                                                                12),
-                                                        bottomLeft:
-                                                            Radius.circular(
-                                                                chatIndex == 0
-                                                                    ? 12
-                                                                    : 0),
-                                                        bottomRight: Radius.circular(
-                                                            chatIndex == 0 ? 0 : 12))),
-                                                padding: EdgeInsets.only(
-                                                    top: chatIndex == 0 ? 8 : 0,
-                                                    left: 8,
-                                                    bottom:
-                                                        chatIndex == 0 ? 8 : 16,
-                                                    right: 8),
-                                                child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Flexible(
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .end,
-                                                        children: [
-                                                          chatIndex == 0
-                                                              ? Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .end,
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
-                                                                  children: [
-                                                                    Flexible(
-                                                                      child:
-                                                                          TextWidget(
-                                                                        fontWeight:
-                                                                            FontWeight.normal,
-                                                                        label:
-                                                                            msg,
-                                                                        fontSize:
-                                                                            16,
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                )
-                                                              : DefaultTextStyle(
-                                                                  style:
-                                                                      const TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        16,
-                                                                  ),
-                                                                  child: Column(
+                                        return GestureDetector(
+                                          onTap: () {
+                                            // When tapped outside of the keyboard, unfocus the current focus node.
+                                            final currentFocus =
+                                                FocusScope.of(context);
+                                            if (!currentFocus.hasPrimaryFocus) {
+                                              currentFocus.unfocus();
+                                            }
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Flexible(
+                                                child: Container(
+                                                  margin: EdgeInsets.only(
+                                                    top: 4,
+                                                    bottom: 8,
+                                                    left:
+                                                        chatIndex == 0 ? 24 : 4,
+                                                    right:
+                                                        chatIndex == 0 ? 4 : 24,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                      color: chatIndex == 0
+                                                          ? const Color.fromARGB(
+                                                              255, 28, 196, 103)
+                                                          : cardColor,
+                                                      borderRadius: BorderRadius.only(
+                                                          topLeft:
+                                                              const Radius.circular(
+                                                                  12),
+                                                          topRight:
+                                                              const Radius.circular(
+                                                                  12),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  chatIndex == 0
+                                                                      ? 12
+                                                                      : 0),
+                                                          bottomRight: Radius.circular(
+                                                              chatIndex == 0 ? 0 : 12))),
+                                                  padding: EdgeInsets.only(
+                                                      top: chatIndex == 0
+                                                          ? 8
+                                                          : 0,
+                                                      left: 8,
+                                                      bottom: chatIndex == 0
+                                                          ? 8
+                                                          : 16,
+                                                      right: 8),
+                                                  child: Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Flexible(
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .end,
+                                                          children: [
+                                                            chatIndex == 0
+                                                                ? Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .end,
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
                                                                     children: [
-                                                                      InkWell(
-                                                                        onTap:
-                                                                            () {
-                                                                          print(
-                                                                              msg);
-
-                                                                          Clipboard.setData(
-                                                                              ClipboardData(text: msg));
-                                                                          // Show a snackbar or any other feedback to the user indicating successful copy.
-
-                                                                          ScaffoldMessenger.of(context)
-                                                                              .showSnackBar(SnackBar(content: Text('Copied to clipboard')));
-                                                                        },
+                                                                      Flexible(
                                                                         child:
-                                                                            Container(
-                                                                          alignment:
-                                                                              Alignment.topRight,
-                                                                          padding:
-                                                                              EdgeInsets.all(4),
-                                                                          child:
-                                                                              Icon(
-                                                                            Icons.copy,
-                                                                            color:
-                                                                                Colors.white,
-                                                                            size:
-                                                                                15,
-                                                                          ),
+                                                                            TextWidget(
+                                                                          fontWeight:
+                                                                              FontWeight.normal,
+                                                                          label:
+                                                                              msg,
+                                                                          fontSize:
+                                                                              16,
                                                                         ),
                                                                       ),
-                                                                      Text(msg),
                                                                     ],
+                                                                  )
+                                                                : DefaultTextStyle(
+                                                                    style:
+                                                                        const TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          16,
+                                                                    ),
+                                                                    child:
+                                                                        Column(
+                                                                      children: [
+                                                                        InkWell(
+                                                                          onTap:
+                                                                              () {
+                                                                            print(msg);
+
+                                                                            Clipboard.setData(ClipboardData(text: msg));
+                                                                            // Show a snackbar or any other feedback to the user indicating successful copy.
+
+                                                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Copied to clipboard')));
+                                                                          },
+                                                                          child:
+                                                                              Container(
+                                                                            alignment:
+                                                                                Alignment.topRight,
+                                                                            padding:
+                                                                                EdgeInsets.all(4),
+                                                                            child:
+                                                                                Icon(
+                                                                              Icons.copy,
+                                                                              color: Colors.white,
+                                                                              size: 15,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        Text(
+                                                                            msg),
+                                                                      ],
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                        ],
+                                                          ],
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ),
-                              ),
-                              if (gettingReply)
-                                const SpinKitThreeBounce(
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
+                                if (gettingReply)
+                                  const SpinKitThreeBounce(
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
 
-                              //Send Message Input Section
-                              Container(
-                                padding: const EdgeInsets.all(8.0),
-                                color: ColorPallate.cardColor,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        padding: const EdgeInsets.all(16.0),
-                                        decoration: BoxDecoration(
-                                          color: ColorPallate.bgColor,
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                        ),
-                                        child: TextField(
-                                          maxLines: 2,
-                                          minLines: 1,
-                                          keyboardType: TextInputType.multiline,
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                          controller: controller,
-                                          onSubmitted: (value) async {},
-                                          decoration: InputDecoration.collapsed(
-                                              hintText: 'How can I help you?',
-                                              hintStyle: TextStyle(
-                                                  color: Colors.grey
-                                                      .withOpacity(0.4))),
+                                //Send Message Input Section
+                                Container(
+                                  padding: const EdgeInsets.all(8.0),
+                                  color: ColorPallate.cardColor,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          padding: const EdgeInsets.all(16.0),
+                                          decoration: BoxDecoration(
+                                            color: ColorPallate.bgColor,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          ),
+                                          child: TextField(
+                                            maxLines: 2,
+                                            minLines: 1,
+                                            keyboardType:
+                                                TextInputType.multiline,
+                                            style: const TextStyle(
+                                                color: Colors.white),
+                                            controller: controller,
+                                            onTap: scrollToBottom,
+                                            onSubmitted: (value) async {},
+                                            decoration:
+                                                InputDecoration.collapsed(
+                                                    hintText:
+                                                        'How can I help you?',
+                                                    hintStyle: TextStyle(
+                                                        color: Colors.grey
+                                                            .withOpacity(0.4))),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () async {
-                                        print('Total Sent: $totalSent');
-                                        print(('Premium Status: $isPremium'));
+                                      IconButton(
+                                        onPressed: () async {
+                                          scrollToBottom();
+                                          print('Total Sent: $totalSent');
+                                          print(('Premium Status: $isPremium'));
 
-                                        //If freeLimit cross and User is not Premium
-                                        //Then Go to Subscription Screen
-                                        if (totalSent > freeChatLimit &&
-                                            !isPremium) {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      SubscriptionScreen()));
-                                        }
-                                        question = controller.text;
-                                        controller.clear();
-                                        setState(() {
-                                          conv.add(
-                                              {"msg": question, "index": 0});
-                                          addedConversation.add(
-                                              {"msg": question, "index": 0});
-                                        });
-                                        replyFunction();
-                                        sharedPreferencesUtil.saveInt(
-                                            'totalSent', totalSent + 1);
-                                        setState(() {
-                                          totalSent = sharedPreferencesUtil
-                                              .getInt('totalSent');
-                                        });
+                                          //If freeLimit cross and User is not Premium
+                                          //Then Go to Subscription Screen
+                                          if (totalSent > freeChatLimit &&
+                                              !isPremium) {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        SubscriptionScreen()));
+                                          }
+                                          question = controller.text;
+                                          controller.clear();
+                                          setState(() {
+                                            conv.add(
+                                                {"msg": question, "index": 0});
+                                            addedConversation.add(
+                                                {"msg": question, "index": 0});
+                                          });
+                                          replyFunction();
+                                          sharedPreferencesUtil.saveInt(
+                                              'totalSent', totalSent + 1);
+                                          setState(() {
+                                            totalSent = sharedPreferencesUtil
+                                                .getInt('totalSent');
+                                          });
 
-                                        print('Total Sent: $totalSent');
-                                      },
-                                      icon: const Icon(
-                                        Icons.send,
-                                        color: Colors.white,
+                                          print('Total Sent: $totalSent');
+                                        },
+                                        icon: const Icon(
+                                          Icons.send,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-            })
+                        );
+                }))
         : SubscriptionScreen();
   }
 
@@ -458,11 +476,16 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void scrollToBottom() {
-    print('Scrolling to Bottom');
-    scrollController.animateTo(
-      scrollController.position.maxScrollExtent,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    if (scrollController != null && scrollController!.hasClients) {
+      print('Scrolling to Bottom');
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollController!.animateTo(
+          scrollController!.position.maxScrollExtent,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
   }
 }
