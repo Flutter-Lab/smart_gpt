@@ -35,10 +35,6 @@ class ChatScreen extends StatefulWidget {
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
-
-  // List<Map<String, dynamic>> getConversation() {
-  //   return conversation;
-  // }
 }
 
 class _ChatScreenState extends State<ChatScreen> {
@@ -67,7 +63,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     await Future.delayed(const Duration(seconds: 1));
 
-    String botReply = await ApiService.sendMessage(message: question);
+    String botReply = await ApiService.sendMessage(contextList: getContext());
     setState(() {
       gettingReply = false;
       conv.add({"msg": botReply, "index": 1});
@@ -102,20 +98,6 @@ class _ChatScreenState extends State<ChatScreen> {
       checkLength = widget.conversation.length;
       count++;
     }
-
-    // scrollToBottom();
-
-    // if (totalSent < freeChatLimit - 1 ||
-    //     isPremium && scrollController.hasClients) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     // Perform auto-scrolling here
-    //     scrollController.animateTo(
-    //       scrollController.position.maxScrollExtent,
-    //       duration: Duration(milliseconds: 1000),
-    //       curve: Curves.easeInOut,
-    //     );
-    //   });
-    // }
 
     return totalSent < freeChatLimit - 1 || isPremium
         ? FutureBuilder<bool>(
@@ -196,22 +178,22 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              Flexible(
-                                child: NotificationListener<ScrollNotification>(
-                                  //Hide keyboard on Scroll
-                                  onNotification: (scrollNotification) {
-                                    if (scrollNotification
-                                            is ScrollUpdateNotification &&
-                                        scrollNotification.metrics.axis ==
-                                            Axis.vertical &&
-                                        scrollNotification.dragDetails !=
-                                            null) {
-                                      // Hide the keyboard when scrolling starts
-                                      FocusScope.of(context).unfocus();
-                                    }
-                                    return false;
-                                  },
+                              NotificationListener<ScrollNotification>(
+                                //Hide keyboard on Scroll
+                                onNotification: (scrollNotification) {
+                                  if (scrollNotification
+                                          is ScrollUpdateNotification &&
+                                      scrollNotification.metrics.axis ==
+                                          Axis.vertical &&
+                                      scrollNotification.dragDetails != null) {
+                                    // Hide the keyboard when scrolling starts
+                                    FocusScope.of(context).unfocus();
+                                  }
+                                  return false;
+                                },
+                                child: Flexible(
                                   child: ListView.builder(
                                     controller: scrollController,
                                     itemCount: widget.conversation.length,
@@ -366,10 +348,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                   size: 18,
                                 ),
 
-                              ElevatedButton(
-                                  onPressed: getContext,
-                                  child: Text('Context')),
-
                               //Send Message Input Section
                               Container(
                                 padding: const EdgeInsets.all(8.0),
@@ -453,12 +431,11 @@ class _ChatScreenState extends State<ChatScreen> {
   List<Map<String, String>> getContext() {
     List<Map<String, String>> contextList = [];
     int totalWords = 0;
-    print('Coversation List: $conv');
     for (int i = conv.length - 1; i >= 0; i--) {
       // for (Map<String, dynamic> map in conv) {
       totalWords += conv[i]['msg'].toString().split(' ').length;
       // conv.forEach((map) {
-      if (totalWords > 1000) {
+      if (totalWords > contextLimit) {
         break;
       }
       try {
@@ -473,10 +450,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
     ;
-    final hiveList = myBox.values.toList();
-    // print('Context List: $contextList');
-    // print('hivelist: $hiveList');
-    // print(contextList);
+
     print('Total Words: $totalWords');
     contextList = contextList.reversed.toList();
     print(contextList);

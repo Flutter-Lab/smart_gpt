@@ -7,7 +7,9 @@ import 'package:smart_gpt_ai/constants/api_consts.dart';
 
 class ApiService {
   //Send Message fct
-  static Future<String> sendMessage({required String message}) async {
+  static Future<String> sendMessage({
+    required List<Map<String, String>> contextList,
+  }) async {
     final url = Uri.parse('$baseUrl/v1/chat/completions');
 
     String apiKey = await getApiKey();
@@ -20,9 +22,8 @@ class ApiService {
     var body = jsonEncode({
       "model": "gpt-3.5-turbo",
       // "model": "gpt-3.5-turbo-0301",
-      "messages": [
-        {"role": "user", "content": message}
-      ],
+
+      "messages": contextList,
       "temperature": 0.7
     });
 
