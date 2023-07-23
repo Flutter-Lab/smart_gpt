@@ -18,8 +18,8 @@ class ApiService {
     };
 
     var body = jsonEncode({
-      // "model": "gpt-3.5-turbo",
-      "model": "gpt-3.5-turbo-0301",
+      "model": "gpt-3.5-turbo",
+      // "model": "gpt-3.5-turbo-0301",
       "messages": [
         {"role": "user", "content": message}
       ],

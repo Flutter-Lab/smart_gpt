@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_gpt_ai/constants/api_consts.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
 
 import 'package:smart_gpt_ai/services/api_service.dart';
@@ -35,9 +36,9 @@ class ChatScreen extends StatefulWidget {
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 
-  List<Map<String, dynamic>> getConversation() {
-    return conversation;
-  }
+  // List<Map<String, dynamic>> getConversation() {
+  //   return conversation;
+  // }
 }
 
 class _ChatScreenState extends State<ChatScreen> {
@@ -65,6 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
       gettingReply = true;
     });
     await Future.delayed(const Duration(seconds: 1));
+
     String botReply = await ApiService.sendMessage(message: question);
     setState(() {
       gettingReply = false;
@@ -364,6 +366,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                   size: 18,
                                 ),
 
+                              ElevatedButton(
+                                  onPressed: getContext,
+                                  child: Text('Context')),
+
                               //Send Message Input Section
                               Container(
                                 padding: const EdgeInsets.all(8.0),
@@ -442,6 +448,37 @@ class _ChatScreenState extends State<ChatScreen> {
                     );
             })
         : SubscriptionScreen();
+  }
+
+  List<Map<String, String>> getContext() {
+    List<Map<String, String>> contextList = [];
+    int totalWords = 0;
+    print('Coversation List: $conv');
+
+    for (Map<String, dynamic> map in conv) {
+      // }
+
+      // conv.forEach((map) {
+      if (totalWords + map['msg'].toString().length > contextLimit) {
+        break;
+      }
+      try {
+        contextList.add({
+          'role': map['index'] == 0 ? 'user' : 'assistant',
+          'content': map['msg']
+        });
+
+        totalWords += map['msg'].toString().split(' ').length;
+      } catch (e) {
+        print('Erron in making contest list');
+      }
+    }
+    ;
+
+    print('Context List: $contextList');
+    print('Total Words: $totalWords');
+
+    return contextList;
   }
 
   void scrollToBottom() {
