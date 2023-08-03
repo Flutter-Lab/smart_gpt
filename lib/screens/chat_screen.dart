@@ -166,7 +166,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   const Center(
                     child: Text(
-                      "Chat screen",
+                      "Smart Chat",
                       style: TextStyle(color: Colors.white),
                     ),
                   )

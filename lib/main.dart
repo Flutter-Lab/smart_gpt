@@ -46,15 +46,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
-        // home: const StartScreen(pageIndex: 0),
-        // home: const TestScreen(),
-        // home: MyHomePage(
-        //   title: 'In App Home Page',
-        home: ImgToText()
-        // ),
-        );
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+          useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
+      home: const StartScreen(pageIndex: 0),
+      // home: const TestScreen(),
+      // home: MyHomePage(
+      //   title: 'In App Home Page',
+      // home: ImgToText()
+      // ),
+    );
   }
 }

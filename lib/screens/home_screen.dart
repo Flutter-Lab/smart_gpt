@@ -1,7 +1,9 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/widgets/task_card_full_width_list_widget.dart';
+import 'package:smart_gpt_ai/widgets/task_card_ocr_summary_widget.dart';
 import '../constants/constants.dart';
+import '../services/image_to_text_service.dart';
 import '../widgets/text_widget.dart';
 import 'chat_screen.dart';
 
@@ -31,7 +33,32 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(8.0),
               child: SingleChildScrollView(
                   child: Column(
-                children: const [
+                children: [
+                  TaskCardSummaryWidget(onPressed: () async {
+                    await imageToText();
+                    // String? imageText;
+                    // ImageToTextService imageToTextService =
+                    //     ImageToTextService();
+                    // int? selectedImgRsrc =
+                    //     await imageToTextService.showBottomSheet(context);
+                    // if (selectedImgRsrc != null) {
+                    //   imageText = await imageToTextService
+                    //       .getImageAndExtractText(selectedImgRsrc);
+                    //   List<Map<String, dynamic>> conversation = [];
+                    //   conversation.add({
+                    //     "msg": "Summarize this text\n$imageText",
+                    //     "index": 0
+                    //   });
+                    //   Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //           builder: (context) => ChatScreen(
+                    //               conversation: conversation,
+                    //               id: 0,
+                    //               dateTime: '',
+                    //               gobackPageIndex: 0)));
+                    // }
+                  }),
                   TaskCardSectionListWidget(),
                 ],
               )),
@@ -46,7 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Expanded(
                   child: Container(
-                    padding: EdgeInsets.all(16.0),
+                    padding:
+                        EdgeInsets.only(top: 8, bottom: 8, left: 16, right: 8),
                     decoration: BoxDecoration(
                       color: ColorPallate.bgColor,
                       borderRadius: BorderRadius.circular(16),
@@ -55,7 +83,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(color: Colors.white),
                       controller: controller,
                       onSubmitted: (value) async {},
-                      decoration: InputDecoration.collapsed(
+                      decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                              onPressed: () async {
+                                await imageToText();
+                              },
+                              icon: Icon(Icons.camera_alt)),
+                          border: InputBorder.none,
                           hintText: 'How can I help you?',
                           hintStyle: TextStyle(color: Colors.grey)),
                     ),
@@ -85,5 +119,26 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> imageToText() async {
+    String? imageText;
+    ImageToTextService imageToTextService = ImageToTextService();
+    int? selectedImgRsrc = await imageToTextService.showBottomSheet(context);
+    if (selectedImgRsrc != null) {
+      imageText =
+          await imageToTextService.getImageAndExtractText(selectedImgRsrc);
+
+      List<Map<String, dynamic>> conversation = [];
+      conversation.add({"msg": "Summarize this text\n$imageText", "index": 0});
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                  conversation: conversation,
+                  id: 0,
+                  dateTime: '',
+                  gobackPageIndex: 0)));
+    }
   }
 }
