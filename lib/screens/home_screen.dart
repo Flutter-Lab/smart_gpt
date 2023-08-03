@@ -129,16 +129,21 @@ class _HomeScreenState extends State<HomeScreen> {
       imageText =
           await imageToTextService.getImageAndExtractText(selectedImgRsrc);
 
-      List<Map<String, dynamic>> conversation = [];
-      conversation.add({"msg": "Summarize this text\n$imageText", "index": 0});
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ChatScreen(
-                  conversation: conversation,
-                  id: 0,
-                  dateTime: '',
-                  gobackPageIndex: 0)));
+      print('Image Text $imageText');
+
+      if (imageText != null) {
+        List<Map<String, dynamic>> conversation = [];
+        conversation
+            .add({"msg": "Summarize this text\n$imageText", "index": 0});
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ChatScreen(
+                    conversation: conversation,
+                    id: 0,
+                    dateTime: '',
+                    gobackPageIndex: 0)));
+      }
     }
   }
 }

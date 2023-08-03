@@ -3,16 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:smart_gpt_ai/constants/constants.dart';
 
 class ImageToTextService {
   Future<int?> showBottomSheet(BuildContext context) async {
     // Create a Completer to wait for the user's selection
-    Completer<int> completer = Completer<int>();
+    Completer<int?> completer = Completer<int?>();
 
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
+          decoration: BoxDecoration(
+              color: ColorPallate.cardColor,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
           padding: EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -24,7 +28,11 @@ class ImageToTextService {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Text('Camera', textScaleFactor: 1.2),
+                      child: Text(
+                        'Camera',
+                        textScaleFactor: 1.2,
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
@@ -40,7 +48,11 @@ class ImageToTextService {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Text('Gallary', textScaleFactor: 1.2),
+                      child: Text(
+                        'Gallary',
+                        textScaleFactor: 1.2,
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
