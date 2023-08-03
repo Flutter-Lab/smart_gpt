@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
+import 'package:smart_gpt_ai/image_to_text_screen.dart';
 import 'firebase_options.dart';
 import 'screens/start_screen.dart';
 import 'screens/test_screen.dart';
@@ -45,15 +46,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-
-      theme: ThemeData(
-          useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
-      home: const StartScreen(pageIndex: 0),
-      // home: const TestScreen(),
-      // home: MyHomePage(
-      //   title: 'In App Home Page',
-      // ),
-    );
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+            useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
+        // home: const StartScreen(pageIndex: 0),
+        // home: const TestScreen(),
+        // home: MyHomePage(
+        //   title: 'In App Home Page',
+        home: ImgToText()
+        // ),
+        );
   }
 }
