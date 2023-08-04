@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants/constants.dart';
-import 'text_widget.dart';
 
 class ChatCardWidget extends StatelessWidget {
   const ChatCardWidget({
@@ -29,14 +28,16 @@ class ChatCardWidget extends StatelessWidget {
               right: chatIndex == 0 ? 4 : 24,
             ),
             decoration: BoxDecoration(
-                color: chatIndex == 0
-                    ? const Color.fromARGB(255, 28, 196, 103)
-                    : cardColor,
-                borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(12),
-                    topRight: const Radius.circular(12),
-                    bottomLeft: Radius.circular(chatIndex == 0 ? 12 : 0),
-                    bottomRight: Radius.circular(chatIndex == 0 ? 0 : 12))),
+              color: chatIndex == 0
+                  ? const Color.fromARGB(255, 28, 196, 103)
+                  : cardColor,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(12),
+                topRight: const Radius.circular(12),
+                bottomLeft: Radius.circular(chatIndex == 0 ? 12 : 0),
+                bottomRight: Radius.circular(chatIndex == 0 ? 0 : 12),
+              ),
+            ),
             padding: EdgeInsets.only(
                 top: chatIndex == 0 ? 8 : 0,
                 left: 8,
@@ -51,51 +52,31 @@ class ChatCardWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       chatIndex == 0
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                DefaultTextStyle(
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.normal),
-                                  child: Flexible(
-                                    child: Text(msg),
+                          ? DefaultTextStyle(
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal),
+                              child: Column(
+                                children: [
+                                  CopyIconWidget(context: context, msg: msg),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Flexible(child: Text(msg)),
+                                    ],
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             )
                           : DefaultTextStyle(
                               style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal),
                               child: Column(
                                 children: [
-                                  InkWell(
-                                    onTap: () {
-                                      print(msg);
-
-                                      Clipboard.setData(
-                                          ClipboardData(text: msg));
-                                      // Show a snackbar or any other feedback to the user indicating successful copy.
-
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              content:
-                                                  Text('Copied to clipboard')));
-                                    },
-                                    child: Container(
-                                      alignment: Alignment.topRight,
-                                      padding: EdgeInsets.all(4),
-                                      child: Icon(
-                                        Icons.copy,
-                                        color: Colors.white,
-                                        size: 15,
-                                      ),
-                                    ),
-                                  ),
+                                  CopyIconWidget(context: context, msg: msg),
                                   Text(msg),
                                 ],
                               ),
@@ -108,6 +89,29 @@ class ChatCardWidget extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  InkWell CopyIconWidget({required BuildContext context, required String msg}) {
+    return InkWell(
+      onTap: () {
+        print(msg);
+
+        Clipboard.setData(ClipboardData(text: msg));
+        // Show a snackbar or any other feedback to the user indicating successful copy.
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Copied to clipboard')));
+      },
+      child: Container(
+        alignment: Alignment.topRight,
+        padding: EdgeInsets.all(4),
+        child: Icon(
+          Icons.copy,
+          color: Colors.white,
+          size: 15,
+        ),
+      ),
     );
   }
 }
