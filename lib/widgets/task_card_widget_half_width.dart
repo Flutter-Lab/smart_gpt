@@ -22,10 +22,8 @@ class TaskCardHalfWidth extends StatelessWidget {
         // color: Colors.amber,
         padding: const EdgeInsets.only(left: 10, right: 8, top: 8, bottom: 10),
         margin: const EdgeInsets.all(4),
-        constraints: const BoxConstraints(
-            // minHeight: 60.0, // Set the minimum height here
-            ),
-        // height: 100,
+        constraints: const BoxConstraints(),
+
         decoration: BoxDecoration(
             color: ColorPallate.cardColor,
             borderRadius: BorderRadius.circular(16.0)),
@@ -50,7 +48,8 @@ class TaskCardHalfWidth extends StatelessWidget {
                   TextWidget(
                     label: taskModel.subtitle,
                     color: Colors.grey,
-                    fontSize: 14,
+                    fontSize: 13,
+                    fontWeight: FontWeight.normal,
                   ),
                 ],
               ),

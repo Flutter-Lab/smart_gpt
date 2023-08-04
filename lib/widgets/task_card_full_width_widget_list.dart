@@ -23,7 +23,7 @@ class TaskCardSectionListWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 8, top: 16, bottom: 4),
                 child: TextWidget(
                   label: taskSection.sectionTitle,
-                  fontSize: 20,
+                  fontSize: 18,
                 ),
               ),
               Column(

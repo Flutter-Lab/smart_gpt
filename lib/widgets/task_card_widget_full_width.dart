@@ -23,6 +23,7 @@ class TaskCardFullWidth extends StatelessWidget {
         padding: const EdgeInsets.only(left: 10, right: 8, top: 8, bottom: 10),
         margin: const EdgeInsets.all(4),
         height: 70,
+
         constraints: const BoxConstraints(
           minHeight: 60.0, // Set the minimum height here
         ),
@@ -41,7 +42,8 @@ class TaskCardFullWidth extends StatelessWidget {
                   TextWidget(
                     label: title,
                     color: Colors.grey,
-                    fontSize: 16,
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
                   ),
                 ],
               ),

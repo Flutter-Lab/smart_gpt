@@ -24,16 +24,18 @@ class HistoryItemWidget extends StatelessWidget {
         child: ListTile(
           title: TextWidget(
             label: title,
+            fontSize: 15,
             color: Colors.white,
           ),
           subtitle: TextWidget(
             label: timeStamp,
             color: Colors.grey,
-            fontSize: 16,
+            fontSize: 13,
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
             color: Colors.grey,
+            size: 16,
           ),
           onTap: () {
             onPressed();

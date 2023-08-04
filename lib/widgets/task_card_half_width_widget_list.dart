@@ -27,7 +27,7 @@ class TaskCardHalfWidthGridListWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: TextWidget(
-                        label: currentSection.sectionTitle, fontSize: 20),
+                        label: currentSection.sectionTitle, fontSize: 18),
                   ),
                   GridView.builder(
                       shrinkWrap: true,

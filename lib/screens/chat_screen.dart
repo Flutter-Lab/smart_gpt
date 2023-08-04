@@ -1,19 +1,19 @@
 // ignore_for_file: use_build_context_synchronously, avoid_function_literals_in_foreach_calls, deprecated_member_use, prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_gpt_ai/constants/api_consts.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
-
 import 'package:smart_gpt_ai/services/api_service.dart';
-
+import 'package:smart_gpt_ai/widgets/image_scanning_animation_widget.dart';
 import '../constants/constants.dart';
+import '../services/image_to_text_service.dart';
 import '../utilities/shared_prefs.dart';
-import '../widgets/text_widget.dart';
-
+import '../widgets/chat_card_widget.dart';
+import '../widgets/prompt_input_widget.dart';
 import 'start_screen.dart';
 import 'subscription_screen.dart';
 
@@ -57,6 +57,8 @@ class _ChatScreenState extends State<ChatScreen> {
   ScrollController? scrollController;
   final sharedPreferencesUtil = SharedPreferencesUtil();
 
+  bool imageProcessing = false;
+
   void replyFunction() async {
     setState(() {
       gettingReply = true;
@@ -73,6 +75,9 @@ class _ChatScreenState extends State<ChatScreen> {
     scrollToBottom();
   }
 
+  late int totalSent;
+  late bool isPremium;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -81,6 +86,8 @@ class _ChatScreenState extends State<ChatScreen> {
       scrollController = ScrollController();
       scrollToBottom();
     });
+    totalSent = sharedPreferencesUtil.getInt('totalSent');
+    isPremium = sharedPreferencesUtil.getBool('isPremium');
   }
 
   @override
@@ -92,10 +99,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int totalSent = sharedPreferencesUtil.getInt('totalSent');
-
-    bool isPremium = sharedPreferencesUtil.getBool('isPremium');
-
     conv = widget.conversation;
     id = widget.id;
     dateTime = widget.dateTime;
@@ -111,6 +114,8 @@ class _ChatScreenState extends State<ChatScreen> {
       checkLength = widget.conversation.length;
       count++;
     }
+
+    print('Total Sent: $totalSent');
 
     return totalSent < freeChatLimit - 1 || isPremium
         ? Scaffold(
@@ -185,261 +190,102 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         )
                       : SafeArea(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                NotificationListener<ScrollNotification>(
-                                  //Hide keyboard on Scroll
-                                  onNotification: (scrollNotification) {
-                                    if (scrollNotification
-                                            is ScrollUpdateNotification &&
-                                        scrollNotification.metrics.axis ==
-                                            Axis.vertical &&
-                                        scrollNotification.dragDetails !=
-                                            null) {
-                                      // Hide the keyboard when scrolling starts
-                                      FocusScope.of(context).unfocus();
-                                    }
-                                    return false;
-                                  },
-                                  child: Flexible(
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      controller: scrollController,
-                                      itemCount: widget.conversation.length,
-                                      itemBuilder: (context, index) {
-                                        String msg =
-                                            widget.conversation[index]["msg"];
-                                        int chatIndex =
-                                            widget.conversation[index]["index"];
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              NotificationListener<ScrollNotification>(
+                                //Hide keyboard on Scroll
+                                onNotification: (scrollNotification) {
+                                  if (scrollNotification
+                                          is ScrollUpdateNotification &&
+                                      scrollNotification.metrics.axis ==
+                                          Axis.vertical &&
+                                      scrollNotification.dragDetails != null) {
+                                    // Hide the keyboard when scrolling starts
+                                    FocusScope.of(context).unfocus();
+                                  }
+                                  return false;
+                                },
+                                child: Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Stack(
+                                      children: [
+                                        ListView.builder(
+                                          shrinkWrap: true,
+                                          controller: scrollController,
+                                          itemCount: widget.conversation.length,
+                                          itemBuilder: (context, index) {
+                                            String msg = widget
+                                                .conversation[index]["msg"];
+                                            int chatIndex = widget
+                                                .conversation[index]["index"];
 
-                                        return GestureDetector(
-                                          onTap: () {
-                                            // When tapped outside of the keyboard, unfocus the current focus node.
-                                            final currentFocus =
-                                                FocusScope.of(context);
-                                            if (!currentFocus.hasPrimaryFocus) {
-                                              currentFocus.unfocus();
-                                            }
+                                            return GestureDetector(
+                                              onTap: () {
+                                                // When tapped outside of the keyboard, unfocus the current focus node.
+                                                final currentFocus =
+                                                    FocusScope.of(context);
+                                                if (!currentFocus
+                                                    .hasPrimaryFocus) {
+                                                  currentFocus.unfocus();
+                                                }
+                                              },
+                                              child: ChatCardWidget(
+                                                  chatIndex: chatIndex,
+                                                  msg: msg),
+                                            );
                                           },
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Flexible(
-                                                child: Container(
-                                                  margin: EdgeInsets.only(
-                                                    top: 4,
-                                                    bottom: 8,
-                                                    left:
-                                                        chatIndex == 0 ? 24 : 4,
-                                                    right:
-                                                        chatIndex == 0 ? 4 : 24,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                      color: chatIndex == 0
-                                                          ? const Color.fromARGB(
-                                                              255, 28, 196, 103)
-                                                          : cardColor,
-                                                      borderRadius: BorderRadius.only(
-                                                          topLeft:
-                                                              const Radius.circular(
-                                                                  12),
-                                                          topRight:
-                                                              const Radius.circular(
-                                                                  12),
-                                                          bottomLeft:
-                                                              Radius.circular(
-                                                                  chatIndex == 0
-                                                                      ? 12
-                                                                      : 0),
-                                                          bottomRight: Radius.circular(
-                                                              chatIndex == 0 ? 0 : 12))),
-                                                  padding: EdgeInsets.only(
-                                                      top: chatIndex == 0
-                                                          ? 8
-                                                          : 0,
-                                                      left: 8,
-                                                      bottom: chatIndex == 0
-                                                          ? 8
-                                                          : 16,
-                                                      right: 8),
-                                                  child: Row(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Flexible(
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .end,
-                                                          children: [
-                                                            chatIndex == 0
-                                                                ? Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .end,
-                                                                    mainAxisSize:
-                                                                        MainAxisSize
-                                                                            .min,
-                                                                    children: [
-                                                                      Flexible(
-                                                                        child:
-                                                                            TextWidget(
-                                                                          fontWeight:
-                                                                              FontWeight.normal,
-                                                                          label:
-                                                                              msg,
-                                                                          fontSize:
-                                                                              16,
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  )
-                                                                : DefaultTextStyle(
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      color: Colors
-                                                                          .white,
-                                                                      fontSize:
-                                                                          16,
-                                                                    ),
-                                                                    child:
-                                                                        Column(
-                                                                      children: [
-                                                                        InkWell(
-                                                                          onTap:
-                                                                              () {
-                                                                            print(msg);
-
-                                                                            Clipboard.setData(ClipboardData(text: msg));
-                                                                            // Show a snackbar or any other feedback to the user indicating successful copy.
-
-                                                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Copied to clipboard')));
-                                                                          },
-                                                                          child:
-                                                                              Container(
-                                                                            alignment:
-                                                                                Alignment.topRight,
-                                                                            padding:
-                                                                                EdgeInsets.all(4),
-                                                                            child:
-                                                                                Icon(
-                                                                              Icons.copy,
-                                                                              color: Colors.white,
-                                                                              size: 15,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        Text(
-                                                                            msg),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
+                                        ),
+                                        if (imageProcessing == true)
+                                          ImageScanAnimationWidget()
+                                      ],
                                     ),
                                   ),
                                 ),
-                                if (gettingReply)
-                                  const SpinKitThreeBounce(
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-
-                                //Send Message Input Section
-                                Container(
-                                  padding: const EdgeInsets.all(8.0),
-                                  color: ColorPallate.cardColor,
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          padding: const EdgeInsets.all(16.0),
-                                          decoration: BoxDecoration(
-                                            color: ColorPallate.bgColor,
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                          ),
-                                          child: TextField(
-                                            maxLines: 2,
-                                            minLines: 1,
-                                            keyboardType:
-                                                TextInputType.multiline,
-                                            style: const TextStyle(
-                                                color: Colors.white),
-                                            controller: controller,
-                                            onTap: scrollToBottom,
-                                            onSubmitted: (value) async {},
-                                            decoration:
-                                                InputDecoration.collapsed(
-                                                    hintText:
-                                                        'How can I help you?',
-                                                    hintStyle: TextStyle(
-                                                        color: Colors.grey
-                                                            .withOpacity(0.4))),
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        onPressed: () async {
-                                          scrollToBottom();
-                                          print('Total Sent: $totalSent');
-                                          print(('Premium Status: $isPremium'));
-
-                                          //If freeLimit cross and User is not Premium
-                                          //Then Go to Subscription Screen
-                                          if (totalSent > freeChatLimit &&
-                                              !isPremium) {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SubscriptionScreen()));
-                                          }
-                                          question = controller.text;
-                                          controller.clear();
-                                          setState(() {
-                                            conv.add(
-                                                {"msg": question, "index": 0});
-                                            addedConversation.add(
-                                                {"msg": question, "index": 0});
-                                          });
-                                          replyFunction();
-                                          sharedPreferencesUtil.saveInt(
-                                              'totalSent', totalSent + 1);
-                                          setState(() {
-                                            totalSent = sharedPreferencesUtil
-                                                .getInt('totalSent');
-                                          });
-
-                                          print('Total Sent: $totalSent');
-                                        },
-                                        icon: const Icon(
-                                          Icons.send,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                              ),
+                              if (gettingReply)
+                                const SpinKitThreeBounce(
+                                  color: Colors.white,
+                                  size: 18,
                                 ),
-                              ],
-                            ),
+
+                              //Send Message Input Section
+                              PromptInputWidget(
+                                  controller: controller,
+                                  onPressedSendButton: () async {
+                                    scrollToBottom();
+                                    print('Total Sent: $totalSent');
+                                    print(('Premium Status: $isPremium'));
+
+                                    //If freeLimit cross and User is not Premium
+                                    //Then Go to Subscription Screen
+                                    limitCheckAndSend(
+                                        question: controller.text);
+                                  },
+                                  onPressedCameraButton: () async {
+                                    int? selectedImgSrc =
+                                        await ImageToTextService.getImageSrc(
+                                            context);
+
+                                    if (selectedImgSrc != null) {
+                                      setState(() {
+                                        imageProcessing = true;
+                                      });
+
+                                      String? question =
+                                          await ImageToTextService
+                                              .getTextFromImage(selectedImgSrc);
+
+                                      setState(() {
+                                        imageProcessing = false;
+                                      });
+                                      if (question != null) {
+                                        limitCheckAndSend(question: question);
+                                      }
+                                    }
+                                  }),
+                            ],
                           ),
                         );
                 }))
@@ -450,9 +296,8 @@ class _ChatScreenState extends State<ChatScreen> {
     List<Map<String, String>> contextList = [];
     int totalWords = 0;
     for (int i = conv.length - 1; i >= 0; i--) {
-      // for (Map<String, dynamic> map in conv) {
       totalWords += conv[i]['msg'].toString().split(' ').length;
-      // conv.forEach((map) {
+
       if (totalWords > contextLimit) {
         break;
       }
@@ -461,8 +306,6 @@ class _ChatScreenState extends State<ChatScreen> {
           'role': conv[i]['index'] == 0 ? 'user' : 'assistant',
           'content': conv[i]['msg']
         });
-
-        // totalWords += map['msg'].toString().split(' ').length;
       } catch (e) {
         print('Erron in making contest list');
       }
@@ -486,6 +329,25 @@ class _ChatScreenState extends State<ChatScreen> {
           curve: Curves.easeInOut,
         );
       });
+    }
+  }
+
+  void limitCheckAndSend({required String question}) {
+    if (totalSent > freeChatLimit && !isPremium) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => SubscriptionScreen()));
+    } else {
+      controller.clear();
+      setState(() {
+        conv.add({"msg": question, "index": 0});
+        addedConversation.add({"msg": question, "index": 0});
+      });
+      replyFunction();
+      sharedPreferencesUtil.saveInt('totalSent', totalSent + 1);
+      setState(() {
+        totalSent = sharedPreferencesUtil.getInt('totalSent');
+      });
+      print('Total Sent: $totalSent');
     }
   }
 }

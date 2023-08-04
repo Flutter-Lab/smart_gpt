@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:smart_gpt_ai/constants/constants.dart';
 
 class ImageToTextService {
-  Future<int?> showBottomSheet(BuildContext context) async {
+  static Future<int?> getImageSrc(BuildContext context) async {
     // Create a Completer to wait for the user's selection
     Completer<int?> completer = Completer<int?>();
 
@@ -77,7 +77,7 @@ class ImageToTextService {
     return selected;
   }
 
-  Future<String?> getImageAndExtractText(int imageSource) async {
+  static Future<String?> getTextFromImage(int imageSource) async {
     final imageFile = await ImagePicker().pickImage(
         source: imageSource == 0 ? ImageSource.camera : ImageSource.gallery);
     if (imageFile == null) {
@@ -99,11 +99,6 @@ class ImageToTextService {
         extractedText += line.text + "\n";
       }
     }
-
-    // setState(() {
-    //   _imageFile = File(imageFile.path);
-    //   _extractedText = extractedText;
-    // });
 
     textRecognizer.close();
     return extractedText;
