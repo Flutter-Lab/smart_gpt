@@ -63,7 +63,7 @@ class ChatCardWidget extends StatelessWidget {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Flexible(child: Text(msg)),
+                                      Flexible(child: SelectableText(msg)),
                                     ],
                                   ),
                                 ],
@@ -77,7 +77,7 @@ class ChatCardWidget extends StatelessWidget {
                               child: Column(
                                 children: [
                                   CopyIconWidget(context: context, msg: msg),
-                                  Text(msg),
+                                  SelectableText(msg),
                                 ],
                               ),
                             ),
