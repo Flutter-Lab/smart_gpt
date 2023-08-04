@@ -55,11 +55,13 @@ class ChatCardWidget extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Flexible(
-                                  child: TextWidget(
-                                    fontWeight: FontWeight.normal,
-                                    label: msg,
-                                    fontSize: 16,
+                                DefaultTextStyle(
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal),
+                                  child: Flexible(
+                                    child: Text(msg),
                                   ),
                                 ),
                               ],
