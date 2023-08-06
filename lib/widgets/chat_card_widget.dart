@@ -32,17 +32,19 @@ class ChatCardWidget extends StatelessWidget {
                   ? const Color.fromARGB(255, 28, 196, 103)
                   : cardColor,
               borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(12),
-                topRight: const Radius.circular(12),
+                topLeft: const Radius.circular(16),
+                topRight: const Radius.circular(16),
                 bottomLeft: Radius.circular(chatIndex == 0 ? 12 : 0),
                 bottomRight: Radius.circular(chatIndex == 0 ? 0 : 12),
               ),
             ),
-            padding: EdgeInsets.only(
-                top: chatIndex == 0 ? 8 : 0,
-                left: 8,
-                bottom: chatIndex == 0 ? 8 : 16,
-                right: 8),
+            // padding: EdgeInsets.only(
+            //   top: chatIndex == 0 ? 8 : 8,
+            //   left: 8,
+            //   bottom: chatIndex == 0 ? 8 : 16,
+            //   right: 8,
+            // ),
+            padding: EdgeInsets.all(16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -59,7 +61,7 @@ class ChatCardWidget extends StatelessWidget {
                                   fontWeight: FontWeight.normal),
                               child: Column(
                                 children: [
-                                  CopyIconWidget(context: context, msg: msg),
+                                  // CopyIconWidget(context: context, msg: msg),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
@@ -76,7 +78,7 @@ class ChatCardWidget extends StatelessWidget {
                                   fontWeight: FontWeight.normal),
                               child: Column(
                                 children: [
-                                  CopyIconWidget(context: context, msg: msg),
+                                  // CopyIconWidget(context: context, msg: msg),
                                   SelectableText(msg),
                                 ],
                               ),

@@ -5,11 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
-import 'package:smart_gpt_ai/image_to_text_test_screen.dart';
 import 'package:smart_gpt_ai/splash_screen.dart';
 import 'firebase_options.dart';
-import 'screens/start_screen.dart';
-import 'screens/listview_test_screen.dart';
 import 'utilities/shared_prefs.dart';
 import 'constants/constants.dart';
 
@@ -24,7 +21,7 @@ void main() async {
 
   await PurchaseApi.init();
 
-  bool isUserPro = await PurchaseApi.isUserPremium();
+  bool isUserPro = await PurchaseApi.isUserPremium() || Platform.isIOS;
 
   sharedPreferencesUtil.saveBool('isPremium', isUserPro);
 
@@ -34,7 +31,7 @@ void main() async {
   await Hive.openBox('myBox');
   return runApp(
     DevicePreview(
-      enabled: !kReleaseMode && !Platform.isAndroid,
+      enabled: !kReleaseMode && !Platform.isAndroid && !Platform.isIOS,
       builder: (context) => const MyApp(), // Wrap your app
     ),
   );
