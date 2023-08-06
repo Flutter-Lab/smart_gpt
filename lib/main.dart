@@ -21,7 +21,8 @@ void main() async {
 
   await PurchaseApi.init();
 
-  bool isUserPro = await PurchaseApi.isUserPremium() || Platform.isIOS;
+  bool isUserPro =
+      await PurchaseApi.isUserPremium() || Platform.isIOS || !kReleaseMode;
 
   sharedPreferencesUtil.saveBool('isPremium', isUserPro);
 
