@@ -100,7 +100,7 @@ List<HalfWidthTaskCardModel> card_list = [
   ),
   HalfWidthTaskCardModel(
     title: 'Social',
-    subtitle: 'Create an engagin post',
+    subtitle: 'Create an engaging post',
     icon: '👥',
     msg:
         'Need a catchy Twitter message for a new product launch. Add relevant hashtags to reach our target audience',

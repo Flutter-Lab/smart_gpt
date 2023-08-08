@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_gpt_ai/constants/api_consts.dart';
+import 'package:firedart/firedart.dart' as firedart;
 
 class ApiService {
   //Send Message fct
@@ -60,9 +62,9 @@ class ApiService {
 
     if (apiKey == null) {
       //Generate API Key for User and Set 'apiKey' Value
-      apiKey = await getAndUpdateApiKey();
+      apiKey = await getApiForAllFromDB();
 
-      prefs.setString('userAPI', apiKey!);
+      prefs.setString('userAPI', apiKey);
 
       return apiKey;
     } else {
@@ -70,7 +72,7 @@ class ApiService {
     }
   }
 
-  static Future<String?> getAndUpdateApiKey() async {
+  static Future<String?> getApiKeyFromDB() async {
     final CollectionReference apiListCollection =
         FirebaseFirestore.instance.collection('api_list');
 
@@ -98,5 +100,23 @@ class ApiService {
         return null;
       }
     }
+  }
+
+  static Future<String> getApiForAllFromDB() async {
+    firedart.CollectionReference collection =
+        firedart.Firestore.instance.collection('api_list');
+
+    final documents = await collection.get();
+
+    final fieldValues =
+        documents.map((doc) => doc.map['api_key'] as String).toList();
+
+    Random random = Random();
+
+    int randomIndex = random.nextInt(fieldValues.length);
+
+    print(fieldValues[randomIndex]);
+
+    return fieldValues[randomIndex];
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:glassfy_flutter/glassfy_flutter.dart';
 import 'package:glassfy_flutter/models.dart';
@@ -36,6 +38,9 @@ class PurchaseApi {
   // print('Current Permission ID is: ${permission.permissionId}');
 
   static Future<bool> isUserPremium() async {
+    if (Platform.isWindows) {
+      return true;
+    }
     bool isPremium = false;
     print('Purchase Checking started');
     try {

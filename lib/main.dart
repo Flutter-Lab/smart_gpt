@@ -4,11 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:smart_gpt_ai/testings/chat_steam_test.dart';
+import 'package:smart_gpt_ai/testings/firestore_windows_test.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
-import 'package:smart_gpt_ai/splash_screen.dart';
-import 'firebase_options.dart';
+import 'docs/firebase_options.dart';
+import 'splash_screen.dart';
 import 'utilities/shared_prefs.dart';
 import 'constants/constants.dart';
+import 'package:firedart/firedart.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,10 +22,15 @@ void main() async {
   final sharedPreferencesUtil = SharedPreferencesUtil();
   await sharedPreferencesUtil.initialize();
 
-  await PurchaseApi.init();
+  if (!Platform.isWindows) {
+    await PurchaseApi.init();
+  }
+  Firestore.initialize(DefaultFirebaseOptions.windows.projectId);
 
-  bool isUserPro =
-      await PurchaseApi.isUserPremium() || Platform.isIOS || !kReleaseMode;
+  bool isUserPro = await PurchaseApi.isUserPremium() ||
+      Platform.isIOS ||
+      !kReleaseMode ||
+      Platform.isWindows;
 
   sharedPreferencesUtil.saveBool('isPremium', isUserPro);
 
@@ -45,15 +53,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
-        // home: const StartScreen(pageIndex: 0),
-        // home: const TestScreen(),
-        // home: MyHomePage(
-        //   title: 'In App Home Page',
-        home: SplashScreen()
-        // ),
-        );
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+          useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
+      // home: const StartScreen(pageIndex: 0),
+      // home: const TestScreen(),
+      // home: MyHomePage(
+      // home: SplashScreen()
+      home: ChatStreamTest(),
+
+      // ),
+    );
   }
 }

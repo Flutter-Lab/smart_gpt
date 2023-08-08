@@ -18,8 +18,7 @@ class TaskCardSummaryWidget extends StatelessWidget {
         padding: const EdgeInsets.only(left: 10, right: 8, top: 8, bottom: 10),
         margin: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-            color: ColorPallate.cardColor,
-            borderRadius: BorderRadius.circular(16.0)),
+            color: Colors.cyan, borderRadius: BorderRadius.circular(16.0)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           // mainAxisAlignment: MainAxisAlignment.end,
@@ -36,7 +35,7 @@ class TaskCardSummaryWidget extends StatelessWidget {
             Text(
               'Summarize text from photos',
               maxLines: 3,
-              style: TextStyle(color: Colors.grey, fontSize: 13),
+              style: TextStyle(color: Colors.white, fontSize: 15),
             ),
             // TextWidget(
             //   label: 'Summarize text from photos',
@@ -44,14 +43,14 @@ class TaskCardSummaryWidget extends StatelessWidget {
             //   fontSize: 13,
 
             // ),
-            SizedBox(height: 45),
+            SizedBox(height: 50),
             Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextWidget(
                   label: '📷',
-                  fontSize: 40,
+                  fontSize: 50,
                 ),
               ],
             ),

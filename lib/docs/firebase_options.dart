@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,13 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
+      // throw UnsupportedError(
+      //   'DefaultFirebaseOptions have not been configured for windows - '
+      //   'you can reconfigure this by running the FlutterFire CLI again.',
+      // );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -48,6 +43,24 @@ class DefaultFirebaseOptions {
         );
     }
   }
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBN5o4paKdoDPGHxEk2bKEdLlN9fvCAQdg',
+    appId: '1:168151078817:web:7db15805f4f27d7d771de0',
+    messagingSenderId: '168151078817',
+    projectId: 'smart-gpt-ai-7f206',
+    authDomain: 'smart-gpt-ai-7f206.firebaseapp.com',
+    storageBucket: 'smart-gpt-ai-7f206.appspot.com',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBN5o4paKdoDPGHxEk2bKEdLlN9fvCAQdg',
+    appId: '1:168151078817:web:7db15805f4f27d7d771de0',
+    messagingSenderId: '168151078817',
+    projectId: 'smart-gpt-ai-7f206',
+    authDomain: 'smart-gpt-ai-7f206.firebaseapp.com',
+    storageBucket: 'smart-gpt-ai-7f206.appspot.com',
+  );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBOqu0H-63-UILrJXZmtk7u-ehr12KsszI',
@@ -63,7 +76,23 @@ class DefaultFirebaseOptions {
     messagingSenderId: '168151078817',
     projectId: 'smart-gpt-ai-7f206',
     storageBucket: 'smart-gpt-ai-7f206.appspot.com',
-    iosClientId: '168151078817-5ia1sg2ojsau8okcloe81femv7q3mr53.apps.googleusercontent.com',
+    androidClientId:
+        '168151078817-c9hnflafglm0gcbt7644dln4gs72cb7k.apps.googleusercontent.com',
+    iosClientId:
+        '168151078817-5ia1sg2ojsau8okcloe81femv7q3mr53.apps.googleusercontent.com',
     iosBundleId: 'com.example.smartGptAi',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyDSkgtjzWGApw8xlQ9_xzEIqhconNaLJw0',
+    appId: '1:168151078817:ios:2b0dce813212e465771de0',
+    messagingSenderId: '168151078817',
+    projectId: 'smart-gpt-ai-7f206',
+    storageBucket: 'smart-gpt-ai-7f206.appspot.com',
+    androidClientId:
+        '168151078817-c9hnflafglm0gcbt7644dln4gs72cb7k.apps.googleusercontent.com',
+    iosClientId:
+        '168151078817-4mo3vn0213tv5nll6kq1s00p96n7k8d3.apps.googleusercontent.com',
+    iosBundleId: 'com.example.smartGptAi.RunnerTests',
   );
 }

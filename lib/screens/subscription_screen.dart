@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:glassfy_flutter/glassfy_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_gpt_ai/screens/docs/terms_and_condition.dart';
+import 'package:smart_gpt_ai/docs/terms_and_condition.dart';
 import 'package:smart_gpt_ai/screens/start_screen.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 

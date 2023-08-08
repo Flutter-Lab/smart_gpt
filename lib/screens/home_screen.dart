@@ -88,6 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 for (var cardmodel in card_list)
                                   TaskCardHalfWidth(
+                                    color: card_list.indexOf(cardmodel) % 2 == 0
+                                        ? Colors.red
+                                        : Colors.deepPurple,
                                     taskModel: cardmodel,
                                     onPressed: () {
                                       List<Map<String, dynamic>> conversation =

@@ -14,6 +14,7 @@ import '../services/image_to_text_service.dart';
 import '../utilities/shared_prefs.dart';
 import '../widgets/chat_card_widget.dart';
 import '../widgets/prompt_input_widget.dart';
+import '../widgets/text_widget.dart';
 import 'start_screen.dart';
 import 'subscription_screen.dart';
 
@@ -88,6 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     totalSent = sharedPreferencesUtil.getInt('totalSent');
     isPremium = sharedPreferencesUtil.getBool('isPremium');
+    id = widget.id;
   }
 
   @override
@@ -100,7 +102,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     conv = widget.conversation;
-    id = widget.id;
+
     dateTime = widget.dateTime;
     indexNumber = widget.gobackPageIndex;
 
@@ -117,179 +119,180 @@ class _ChatScreenState extends State<ChatScreen> {
 
     print('Total Sent: $totalSent');
 
-    return totalSent < freeChatLimit - 1 || isPremium
-        ? Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.navigate_before,
-                      color: Colors.white,
-                    ),
-                    onPressed: () async {
-                      DateTime now = DateTime.now();
-                      int milliseconds = now.millisecondsSinceEpoch;
-                      String uniqueId = '$milliseconds';
-                      String formattedDate =
-                          DateFormat('dd/MM/yyyy hh:mm a').format(now);
-                      if (checkLength == conv.length) {
-                        //if true means no changes happed.
-                      } else {
-                        if (id == 0) {
-                          List<Map<String, dynamic>> conWithTime = [];
-                          conWithTime.add({
-                            "conversation": conv,
-                            "ID": uniqueId,
-                            "timeStamp": formattedDate
-                          });
-                          await myBox.add(conWithTime);
-                        } else {
-                          modifiedList = [];
-                          final hiveList = myBox.values.toList();
-                          modifiedList.add({
-                            "conversation": hiveList[indexNumber][0]
-                                ["conversation"],
-                            "ID": uniqueId,
-                            "timeStamp": formattedDate
-                          });
-                          myBox.put(indexNumber, modifiedList);
+    if (totalSent < freeChatLimit - 1 || isPremium) {
+      return Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: appBarTitleWidget(context),
+            backgroundColor: ColorPallate.cardColor,
+          ),
+          body: FutureBuilder<bool>(
+              future: PurchaseApi.isUserPremium(),
+              builder: (context, snapshot) {
+                return !snapshot.hasData
+                    ? Center(
+                        child: const SpinKitThreeBounce(
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      )
+                    : SafeArea(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            NotificationListener<ScrollNotification>(
+                              //Hide keyboard on Scroll
+                              onNotification: (scrollNotification) {
+                                if (scrollNotification
+                                        is ScrollUpdateNotification &&
+                                    scrollNotification.metrics.axis ==
+                                        Axis.vertical &&
+                                    scrollNotification.dragDetails != null) {
+                                  // Hide the keyboard when scrolling starts
+                                  FocusScope.of(context).unfocus();
+                                }
+                                return false;
+                              },
+                              child: Flexible(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Stack(
+                                    children: [
+                                      ListView.builder(
+                                        shrinkWrap: true,
+                                        controller: scrollController,
+                                        itemCount: widget.conversation.length,
+                                        itemBuilder: (context, index) {
+                                          String msg =
+                                              widget.conversation[index]["msg"];
+                                          int chatIndex = widget
+                                              .conversation[index]["index"];
 
-                          addedConversation.forEach((element) async {
-                            await hiveList[indexNumber][0]["conversation"]
-                                .add(element);
-                          });
-                        }
-                      }
-
-                      Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) {
-                        return StartScreen(pageIndex: widget.gobackPageIndex);
-                      }));
-                    },
-                  ),
-                  const Center(
-                    child: Text(
-                      "Smart Chat",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  )
-                ],
-              ),
-              backgroundColor: ColorPallate.cardColor,
-            ),
-            body: FutureBuilder<bool>(
-                future: PurchaseApi.isUserPremium(),
-                builder: (context, snapshot) {
-                  return !snapshot.hasData
-                      ? Center(
-                          child: const SpinKitThreeBounce(
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        )
-                      : SafeArea(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              NotificationListener<ScrollNotification>(
-                                //Hide keyboard on Scroll
-                                onNotification: (scrollNotification) {
-                                  if (scrollNotification
-                                          is ScrollUpdateNotification &&
-                                      scrollNotification.metrics.axis ==
-                                          Axis.vertical &&
-                                      scrollNotification.dragDetails != null) {
-                                    // Hide the keyboard when scrolling starts
-                                    FocusScope.of(context).unfocus();
-                                  }
-                                  return false;
-                                },
-                                child: Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Stack(
-                                      children: [
-                                        ListView.builder(
-                                          shrinkWrap: true,
-                                          controller: scrollController,
-                                          itemCount: widget.conversation.length,
-                                          itemBuilder: (context, index) {
-                                            String msg = widget
-                                                .conversation[index]["msg"];
-                                            int chatIndex = widget
-                                                .conversation[index]["index"];
-
-                                            return GestureDetector(
-                                              onTap: () {
-                                                // When tapped outside of the keyboard, unfocus the current focus node.
-                                                final currentFocus =
-                                                    FocusScope.of(context);
-                                                if (!currentFocus
-                                                    .hasPrimaryFocus) {
-                                                  currentFocus.unfocus();
-                                                }
-                                              },
-                                              child: ChatCardWidget(
-                                                  chatIndex: chatIndex,
-                                                  msg: msg),
-                                            );
-                                          },
-                                        ),
-                                        if (imageProcessing == true)
-                                          ImageScanAnimationWidget()
-                                      ],
-                                    ),
+                                          return GestureDetector(
+                                            onTap: () {
+                                              // When tapped outside of the keyboard, unfocus the current focus node.
+                                              final currentFocus =
+                                                  FocusScope.of(context);
+                                              if (!currentFocus
+                                                  .hasPrimaryFocus) {
+                                                currentFocus.unfocus();
+                                              }
+                                            },
+                                            child: ChatCardWidget(
+                                                chatIndex: chatIndex, msg: msg),
+                                          );
+                                        },
+                                      ),
+                                      if (imageProcessing == true)
+                                        ImageScanAnimationWidget()
+                                    ],
                                   ),
                                 ),
                               ),
-                              if (gettingReply)
-                                const SpinKitThreeBounce(
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
+                            ),
+                            if (gettingReply)
+                              const SpinKitThreeBounce(
+                                color: Colors.white,
+                                size: 18,
+                              ),
 
-                              //Send Message Input Section
-                              PromptInputWidget(
-                                  controller: controller,
-                                  onPressedSendButton: () async {
-                                    scrollToBottom();
-                                    print('Total Sent: $totalSent');
-                                    print(('Premium Status: $isPremium'));
+                            //Send Message Input Section
+                            PromptInputWidget(
+                                controller: controller,
+                                onPressedSendButton: () async {
+                                  scrollToBottom();
+                                  print('Total Sent: $totalSent');
+                                  print(('Premium Status: $isPremium'));
 
-                                    //If freeLimit cross and User is not Premium
-                                    //Then Go to Subscription Screen
-                                    limitCheckAndSend(
-                                        question: controller.text);
-                                  },
-                                  onPressedCameraButton: () async {
-                                    int? selectedImgSrc =
-                                        await ImageToTextService.getImageSrc(
-                                            context);
+                                  //If freeLimit cross and User is not Premium
+                                  //Then Go to Subscription Screen
+                                  limitCheckAndSend(question: controller.text);
+                                },
+                                onPressedCameraButton: () async {
+                                  int? selectedImgSrc =
+                                      await ImageToTextService.getImageSrc(
+                                          context);
 
-                                    if (selectedImgSrc != null) {
-                                      setState(() {
-                                        imageProcessing = true;
-                                      });
+                                  if (selectedImgSrc != null) {
+                                    setState(() {
+                                      imageProcessing = true;
+                                    });
 
-                                      String? question =
-                                          await ImageToTextService
-                                              .getTextFromImage(selectedImgSrc);
+                                    String? question = await ImageToTextService
+                                        .getTextFromImage(selectedImgSrc);
 
-                                      setState(() {
-                                        imageProcessing = false;
-                                      });
-                                      if (question != null) {
-                                        limitCheckAndSend(question: question);
-                                      }
+                                    setState(() {
+                                      imageProcessing = false;
+                                    });
+                                    if (question != null) {
+                                      limitCheckAndSend(question: question);
                                     }
-                                  }),
-                            ],
-                          ),
-                        );
-                }))
-        : SubscriptionScreen();
+                                  }
+                                }),
+                          ],
+                        ),
+                      );
+              }));
+    } else {
+      return SubscriptionScreen();
+    }
+  }
+
+  Stack appBarTitleWidget(BuildContext context) {
+    return Stack(
+      children: [
+        IconButton(
+          icon: const Icon(
+            Icons.navigate_before,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () async {
+            DateTime now = DateTime.now();
+            int milliseconds = now.millisecondsSinceEpoch;
+            String uniqueId = '$milliseconds';
+            String formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(now);
+            if (checkLength == conv.length) {
+              //if true means no changes happed.
+            } else {
+              if (id == 0) {
+                List<Map<String, dynamic>> conWithTime = [];
+                conWithTime.add({
+                  "conversation": conv,
+                  "ID": uniqueId,
+                  "timeStamp": formattedDate
+                });
+                await myBox.add(conWithTime);
+              } else {
+                modifiedList = [];
+                final hiveList = myBox.values.toList();
+                modifiedList.add({
+                  "conversation": hiveList[indexNumber][0]["conversation"],
+                  "ID": uniqueId,
+                  "timeStamp": formattedDate
+                });
+                myBox.put(indexNumber, modifiedList);
+
+                addedConversation.forEach((element) async {
+                  await hiveList[indexNumber][0]["conversation"].add(element);
+                });
+              }
+            }
+
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) {
+              return StartScreen(pageIndex: widget.gobackPageIndex);
+            }));
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: TextWidget(label: 'Smart Chat', fontSize: 20),
+          ),
+        )
+      ],
+    );
   }
 
   List<Map<String, String>> getContext() {

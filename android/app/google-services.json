@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "168151078817-c9hnflafglm0gcbt7644dln4gs72cb7k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.xpertitlab.smart_gpt_ai",
+            "certificate_hash": "0f75887125e570280807c2c22f5e74f828a99c3b"
+          }
+        },
+        {
           "client_id": "168151078817-9fmlnflvgk8n8fnds4tj14230uhrh2oc.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "168151078817-9fmlnflvgk8n8fnds4tj14230uhrh2oc.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "168151078817-5ia1sg2ojsau8okcloe81femv7q3mr53.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.smartGptAi"
+              }
             }
           ]
         }

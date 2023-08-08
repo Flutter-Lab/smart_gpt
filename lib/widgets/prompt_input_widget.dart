@@ -19,8 +19,6 @@ class PromptInputWidget extends StatefulWidget {
 }
 
 class _PromptInputWidgetState extends State<PromptInputWidget> {
-
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -44,11 +42,14 @@ class _PromptInputWidgetState extends State<PromptInputWidget> {
                       onPressed: () {
                         widget.onPressedCameraButton();
                       },
-                      icon: Icon(Icons.camera_alt),
+                      icon: Icon(
+                        Icons.camera_alt,
+                        size: 35,
+                      ),
                     ),
                     border: InputBorder.none,
                     hintText: 'How can I help you?',
-                    hintStyle: TextStyle(color: Colors.grey)),
+                    hintStyle: TextStyle(color: Colors.grey.shade600)),
               ),
             ),
           ),
@@ -56,7 +57,7 @@ class _PromptInputWidgetState extends State<PromptInputWidget> {
             onPressed: widget.onPressedSendButton,
             icon: Icon(
               Icons.send,
-              color: Colors.white,
+              color: Colors.green,
             ),
           ),
         ],

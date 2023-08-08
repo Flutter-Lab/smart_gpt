@@ -8,8 +8,10 @@ import '../constants/constants.dart';
 class TaskCardHalfWidth extends StatelessWidget {
   final HalfWidthTaskCardModel taskModel;
   final VoidCallback? onPressed;
+  final Color? color;
   const TaskCardHalfWidth({
     Key? key,
+    this.color = ColorPallate.cardColor,
     required this.taskModel,
     required this.onPressed,
   }) : super(key: key);
@@ -22,11 +24,10 @@ class TaskCardHalfWidth extends StatelessWidget {
         // color: Colors.amber,
         padding: const EdgeInsets.only(left: 10, right: 8, top: 8, bottom: 10),
         margin: const EdgeInsets.all(4),
-        constraints: const BoxConstraints(),
+        constraints: const BoxConstraints(minHeight: 100),
 
         decoration: BoxDecoration(
-            color: ColorPallate.cardColor,
-            borderRadius: BorderRadius.circular(16.0)),
+            color: color, borderRadius: BorderRadius.circular(16.0)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           mainAxisSize: MainAxisSize.min,
@@ -47,8 +48,8 @@ class TaskCardHalfWidth extends StatelessWidget {
                   const SizedBox(height: 5),
                   TextWidget(
                     label: taskModel.subtitle,
-                    color: Colors.grey,
-                    fontSize: 13,
+                    color: color != null ? Colors.white : Colors.grey,
+                    fontSize: 14,
                     fontWeight: FontWeight.normal,
                   ),
                 ],

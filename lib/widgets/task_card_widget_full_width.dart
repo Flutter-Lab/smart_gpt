@@ -20,7 +20,7 @@ class TaskCardFullWidth extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        padding: const EdgeInsets.only(left: 10, right: 8, top: 8, bottom: 10),
+        padding: const EdgeInsets.only(left: 16, right: 8, top: 8, bottom: 10),
         margin: const EdgeInsets.all(4),
         height: 70,
 
@@ -42,7 +42,7 @@ class TaskCardFullWidth extends StatelessWidget {
                   TextWidget(
                     label: title,
                     color: Colors.grey,
-                    fontSize: 14,
+                    fontSize: 15,
                     fontWeight: FontWeight.normal,
                   ),
                 ],

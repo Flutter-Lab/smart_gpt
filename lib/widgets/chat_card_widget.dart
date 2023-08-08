@@ -57,7 +57,7 @@ class ChatCardWidget extends StatelessWidget {
                           ? DefaultTextStyle(
                               style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 16,
+                                  fontSize: 17,
                                   fontWeight: FontWeight.normal),
                               child: Column(
                                 children: [
@@ -74,12 +74,14 @@ class ChatCardWidget extends StatelessWidget {
                           : DefaultTextStyle(
                               style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 16,
+                                  fontSize: 17,
                                   fontWeight: FontWeight.normal),
                               child: Column(
                                 children: [
                                   // CopyIconWidget(context: context, msg: msg),
-                                  SelectableText(msg),
+                                  SelectableText(
+                                    msg,
+                                  ),
                                 ],
                               ),
                             ),
