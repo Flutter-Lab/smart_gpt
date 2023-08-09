@@ -22,7 +22,7 @@ void main() async {
   final sharedPreferencesUtil = SharedPreferencesUtil();
   await sharedPreferencesUtil.initialize();
 
-  if (!Platform.isWindows) {
+  if (Platform.isAndroid) {
     await PurchaseApi.init();
   }
   Firestore.initialize(DefaultFirebaseOptions.windows.projectId);
