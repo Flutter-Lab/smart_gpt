@@ -327,10 +327,18 @@ class _ChatScreenState extends State<ChatScreen> {
             size: 30,
           ),
           onPressed: () async {
-            // DateTime now = DateTime.now();
-            // int milliseconds = now.millisecondsSinceEpoch;
-            // String uniqueId = '$milliseconds';
-            // String formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(now);
+            DateTime now = DateTime.now();
+            int milliseconds = now.millisecondsSinceEpoch;
+            String uniqueId = '$milliseconds';
+            String formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(now);
+
+            List<Map<String, dynamic>> conWithTime = [];
+            conWithTime.add({
+              "conversation": conv,
+              // "ID": uniqueId,
+              "timeStamp": formattedDate
+            });
+            await myBox.add(conWithTime);
             if (checkLength == conv.length) {
               //if true means no changes happed.
             } else {
