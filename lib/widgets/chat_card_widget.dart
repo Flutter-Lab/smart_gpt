@@ -3,16 +3,26 @@ import 'package:flutter/services.dart';
 
 import '../constants/constants.dart';
 
-class ChatCardWidget extends StatelessWidget {
-  const ChatCardWidget({
-    super.key,
-    required this.chatIndex,
-    required this.msg,
-  });
+class ChatCardWidget extends StatefulWidget {
+  ChatCardWidget(
+      {super.key,
+      required this.chatIndex,
+      required this.msg,
+      this.stream,
+      required this.convLength,
+      required this.currentMsgIndex});
 
   final int chatIndex;
   final String msg;
+  Stream<String>? stream;
+  final int convLength;
+  final int currentMsgIndex;
 
+  @override
+  State<ChatCardWidget> createState() => _ChatCardWidgetState();
+}
+
+class _ChatCardWidgetState extends State<ChatCardWidget> {
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -24,18 +34,18 @@ class ChatCardWidget extends StatelessWidget {
             margin: EdgeInsets.only(
               top: 4,
               bottom: 8,
-              left: chatIndex == 0 ? 24 : 4,
-              right: chatIndex == 0 ? 4 : 24,
+              left: widget.chatIndex == 0 ? 24 : 4,
+              right: widget.chatIndex == 0 ? 4 : 24,
             ),
             decoration: BoxDecoration(
-              color: chatIndex == 0
+              color: widget.chatIndex == 0
                   ? const Color.fromARGB(255, 28, 196, 103)
                   : cardColor,
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(16),
                 topRight: const Radius.circular(16),
-                bottomLeft: Radius.circular(chatIndex == 0 ? 12 : 0),
-                bottomRight: Radius.circular(chatIndex == 0 ? 0 : 12),
+                bottomLeft: Radius.circular(widget.chatIndex == 0 ? 12 : 0),
+                bottomRight: Radius.circular(widget.chatIndex == 0 ? 0 : 12),
               ),
             ),
             // padding: EdgeInsets.only(
@@ -51,9 +61,9 @@ class ChatCardWidget extends StatelessWidget {
               children: [
                 Flexible(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    // crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      chatIndex == 0
+                      widget.chatIndex == 0
                           ? DefaultTextStyle(
                               style: const TextStyle(
                                   color: Colors.white,
@@ -65,7 +75,8 @@ class ChatCardWidget extends StatelessWidget {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Flexible(child: SelectableText(msg)),
+                                      Flexible(
+                                          child: SelectableText(widget.msg)),
                                     ],
                                   ),
                                 ],
@@ -77,11 +88,23 @@ class ChatCardWidget extends StatelessWidget {
                                   fontSize: 17,
                                   fontWeight: FontWeight.normal),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // CopyIconWidget(context: context, msg: msg),
-                                  SelectableText(
-                                    msg,
-                                  ),
+                                  widget.stream != null
+                                      ? StreamBuilder<String>(
+                                          stream: widget.stream,
+                                          builder: (context, snapshot) {
+                                            print('Stream OK');
+                                            return SelectableText(
+                                              snapshot.data != null
+                                                  ? snapshot.data!
+                                                  : 'Typing...',
+                                            );
+                                          })
+                                      : SelectableText(
+                                          widget.msg,
+                                        ),
                                 ],
                               ),
                             ),

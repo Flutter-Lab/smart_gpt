@@ -14,11 +14,11 @@ class ChatStreamTest extends StatefulWidget {
 }
 
 class _ChatStreamTestState extends State<ChatStreamTest> {
-  final StreamController<String> _streamController = StreamController<String>();
+  final StreamController<String> _replyStreamController = StreamController<String>();
 
   @override
   void dispose() {
-    _streamController.close();
+    _replyStreamController.close();
     super.dispose();
   }
 
@@ -31,7 +31,7 @@ class _ChatStreamTestState extends State<ChatStreamTest> {
             children: [
               Expanded(
                 child: StreamBuilder<String>(
-                  stream: _streamController.stream,
+                  stream: _replyStreamController.stream,
                   initialData: 'Hi',
                   builder: (context, snapshot) {
                     return SingleChildScrollView(
@@ -115,7 +115,7 @@ class _ChatStreamTestState extends State<ChatStreamTest> {
     if (response.statusCode == 200) {
       final responseStream = Stream.value(response.body);
       await for (final chunk in responseStream) {
-        _streamController.add(chunk);
+        _replyStreamController.add(chunk);
       }
     } else {
       print('Request failed with status: ${response.statusCode}');
@@ -143,10 +143,10 @@ class _ChatStreamTestState extends State<ChatStreamTest> {
       print(content);
       if (content != null) {
         fullText = fullText + content;
-        _streamController.add(fullText);
+        _replyStreamController.add(fullText);
       }
     });
 
-    _streamController.done;
+    _replyStreamController.done;
   }
 }

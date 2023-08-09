@@ -76,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       MaterialPageRoute(
                                           builder: (context) => ChatScreen(
                                               conversation: conversation,
-                                              id: 0,
                                               dateTime: '',
                                               gobackPageIndex: 0)));
                                 }
@@ -102,7 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                           MaterialPageRoute(
                                               builder: (context) => ChatScreen(
                                                   conversation: conversation,
-                                                  id: 0,
                                                   dateTime: '',
                                                   gobackPageIndex: 0)));
                                     },
@@ -132,7 +130,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(
                       builder: (context) => ChatScreen(
                           conversation: conversation,
-                          id: 0,
                           dateTime: '',
                           gobackPageIndex: 0)));
             },
@@ -162,7 +159,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       MaterialPageRoute(
                           builder: (context) => ChatScreen(
                               conversation: conversation,
-                              id: 0,
                               dateTime: '',
                               gobackPageIndex: 0)));
                 }

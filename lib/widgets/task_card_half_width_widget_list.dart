@@ -57,7 +57,6 @@ class TaskCardHalfWidthGridListWidget extends StatelessWidget {
                                 MaterialPageRoute(
                                     builder: (context) => ChatScreen(
                                         conversation: conversation,
-                                        id: 0,
                                         dateTime: '',
                                         gobackPageIndex: 1)));
                           },

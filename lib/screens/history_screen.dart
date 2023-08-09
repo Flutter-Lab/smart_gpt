@@ -116,7 +116,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                         MaterialPageRoute(
                                             builder: (context) => ChatScreen(
                                                   conversation: oldConv,
-                                                  id: 1,
                                                   gobackPageIndex: 2,
                                                   dateTime: '',
                                                 )));

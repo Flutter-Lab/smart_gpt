@@ -1,5 +1,8 @@
 // ignore_for_file: use_build_context_synchronously, avoid_function_literals_in_foreach_calls, deprecated_member_use, prefer_const_constructors
 
+import 'dart:async';
+
+import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
@@ -22,14 +25,12 @@ final myBox = Hive.box('myBox');
 
 class ChatScreen extends StatefulWidget {
   final List<Map<String, dynamic>> conversation;
-  final int id;
   final int gobackPageIndex;
   final String dateTime;
 
   const ChatScreen({
     Key? key,
     required this.conversation,
-    required this.id,
     required this.gobackPageIndex,
     required this.dateTime,
   }) : super(key: key);
@@ -39,18 +40,15 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  List<Map<String, dynamic>> oldConversation = [];
   List<Map<String, dynamic>> conv = [];
-  List<Map<String, dynamic>> addedConversation = [];
-  List<Map<String, dynamic>> modifiedList = [];
-  int id = 0;
+
   String dateTime = '';
-  int indexNumber = 0;
+  int goBackIndex = 0;
   int checkLength = 0;
   int count = 0;
 
   bool gettingReply = false;
-  TextEditingController controller = TextEditingController();
+  TextEditingController inputTextcontroller = TextEditingController();
 
   late String question = '';
   late String replyByBot;
@@ -62,18 +60,82 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void replyFunction() async {
     setState(() {
-      gettingReply = true;
+      isStreaming = true;
     });
-    // await Future.delayed(const Duration(seconds: 1));
 
-    String botReply = await ApiService.sendMessage(contextList: getContext());
+    // String botReply = await ApiService.sendMessage(contextList: getContext());
+
+    getStreamResponse(contextMapList: getContext());
+    // print('Bot Reply $botReply');
+
     setState(() {
       gettingReply = false;
-      conv.add({"msg": botReply, "index": 1});
-      addedConversation.add({"msg": botReply, "index": 1});
+      conv.add({"msg": '', "index": 1});
+      // addedConversation.add({"msg": botReply, "index": 1});
     });
 
     scrollToBottom();
+  }
+
+  bool isStreaming = false;
+
+  Future<String> getStreamResponse(
+      {required List<Map<String, String>> contextMapList}) async {
+    setState(() {
+      isStreaming = true;
+    });
+
+    OpenAI.apiKey = await ApiService.getApiKey();
+    String fullText = '';
+
+//Converting Context List
+    List<OpenAIChatCompletionChoiceMessageModel> contextList =
+        contextMapList.map((data) {
+      return OpenAIChatCompletionChoiceMessageModel(
+          content: data['content']!,
+          role: data['role'] == 'user'
+              ? OpenAIChatMessageRole.user
+              : OpenAIChatMessageRole.assistant);
+    }).toList();
+
+    Stream<OpenAIStreamChatCompletionModel> chatStream =
+        OpenAI.instance.chat.createStream(
+            model: "gpt-3.5-turbo",
+            // messages: [
+            //   OpenAIChatCompletionChoiceMessageModel(
+            //     content: "Why life is so tough?",
+            //     role: OpenAIChatMessageRole.user,
+            //   )
+            // ],
+            messages: contextList);
+
+    chatStream.listen((streamChatCompletion) {
+      final content = streamChatCompletion.choices.first.delta.content;
+      // print(content);
+      if (content != null) {
+        fullText = fullText + content;
+        _replyStreamController.add(fullText);
+
+        if (fullText.length < 200) {
+          scrollToBottom();
+        }
+      }
+    }).onDone(() {
+      print('Stream is Done');
+      setState(() {
+        conv.last = {"msg": fullText, "index": 1};
+        isStreaming = false;
+        print('FInal Conv : $conv');
+      });
+    });
+
+    _replyStreamController.done;
+
+    print('Full Conv: $conv');
+
+    // botReply = fullText;
+    print('Full Text: $fullText');
+    return fullText;
   }
 
   late int totalSent;
@@ -89,29 +151,34 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     totalSent = sharedPreferencesUtil.getInt('totalSent');
     isPremium = sharedPreferencesUtil.getBool('isPremium');
-    id = widget.id;
   }
+
+  StreamController<String> _replyStreamController =
+      StreamController<String>.broadcast();
 
   @override
   void dispose() {
     scrollController!.dispose();
+    _replyStreamController.close();
 
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    print('is Streaming : $isStreaming');
+
     conv = widget.conversation;
 
     dateTime = widget.dateTime;
-    indexNumber = widget.gobackPageIndex;
+    goBackIndex = widget.gobackPageIndex;
 
     if (count < 1) {
       if (conv.length == 1) {
         replyFunction();
+        // getStreamResponse(contextMapList: getContext());
       }
       question = widget.conversation[0]["msg"];
-      oldConversation = widget.conversation;
       // print(widget.conversation);
       checkLength = widget.conversation.length;
       count++;
@@ -161,12 +228,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                       ListView.builder(
                                         shrinkWrap: true,
                                         controller: scrollController,
-                                        itemCount: widget.conversation.length,
+                                        itemCount: conv.length,
                                         itemBuilder: (context, index) {
-                                          String msg =
-                                              widget.conversation[index]["msg"];
-                                          int chatIndex = widget
-                                              .conversation[index]["index"];
+                                          String msg = conv[index]["msg"];
+                                          int chatIndex = conv[index]["index"];
 
                                           return GestureDetector(
                                             onTap: () {
@@ -178,8 +243,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 currentFocus.unfocus();
                                               }
                                             },
-                                            child: ChatCardWidget(
-                                                chatIndex: chatIndex, msg: msg),
+                                            child: isStreaming &&
+                                                    conv.length == index + 1
+                                                ? ChatCardWidget(
+                                                    convLength: conv.length,
+                                                    currentMsgIndex: index,
+                                                    stream:
+                                                        _replyStreamController
+                                                            .stream,
+                                                    chatIndex: chatIndex,
+                                                    msg: msg)
+                                                : ChatCardWidget(
+                                                    chatIndex: chatIndex,
+                                                    msg: msg,
+                                                    convLength: conv.length,
+                                                    currentMsgIndex: index),
                                           );
                                         },
                                       ),
@@ -198,7 +276,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
                             //Send Message Input Section
                             PromptInputWidget(
-                                controller: controller,
+                                controller: inputTextcontroller,
                                 onPressedSendButton: () async {
                                   scrollToBottom();
                                   print('Total Sent: $totalSent');
@@ -206,7 +284,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
                                   //If freeLimit cross and User is not Premium
                                   //Then Go to Subscription Screen
-                                  limitCheckAndSend(question: controller.text);
+                                  limitCheckAndSend(
+                                      question: inputTextcontroller.text);
                                 },
                                 onPressedCameraButton: () async {
                                   int? selectedImgSrc =
@@ -248,35 +327,37 @@ class _ChatScreenState extends State<ChatScreen> {
             size: 30,
           ),
           onPressed: () async {
-            DateTime now = DateTime.now();
-            int milliseconds = now.millisecondsSinceEpoch;
-            String uniqueId = '$milliseconds';
-            String formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(now);
+            // DateTime now = DateTime.now();
+            // int milliseconds = now.millisecondsSinceEpoch;
+            // String uniqueId = '$milliseconds';
+            // String formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(now);
             if (checkLength == conv.length) {
               //if true means no changes happed.
             } else {
-              if (id == 0) {
-                List<Map<String, dynamic>> conWithTime = [];
-                conWithTime.add({
-                  "conversation": conv,
-                  "ID": uniqueId,
-                  "timeStamp": formattedDate
-                });
-                await myBox.add(conWithTime);
-              } else {
-                modifiedList = [];
-                final hiveList = myBox.values.toList();
-                modifiedList.add({
-                  "conversation": hiveList[indexNumber][0]["conversation"],
-                  "ID": uniqueId,
-                  "timeStamp": formattedDate
-                });
-                myBox.put(indexNumber, modifiedList);
-
-                addedConversation.forEach((element) async {
-                  await hiveList[indexNumber][0]["conversation"].add(element);
-                });
-              }
+              // if (id == 0) {
+              //   List<Map<String, dynamic>> conWithTime = [];
+              //   conWithTime.add({
+              //     "conversation": conv,
+              //     // "ID": uniqueId,
+              //     "timeStamp": formattedDate
+              //   });
+              //   await myBox.add(conWithTime);
+              // // } else {
+              //   // modifiedList = [];
+              //   // final hiveList = myBox.values.toList();
+              //   // modifiedList.add({
+              //   //   "conversation": hiveList[indexNumber][0]["conversation"],
+              //   //   "ID": uniqueId,
+              //   //   "timeStamp": formattedDate
+              //   // });
+              //   // myBox.put(indexNumber, modifiedList);
+              //   // addedConversation.forEach((element) async {
+              //   //   await hiveList[indexNumber][0]["conversation"].add(element);
+              //   // });
+              //   // conv.forEach((element) async {
+              //   //   await hiveList[indexNumber][0]["conversation"].add(element);
+              //   // });
+              // }
             }
 
             Navigator.pushReplacement(context,
@@ -328,7 +409,7 @@ class _ChatScreenState extends State<ChatScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollController!.animateTo(
           scrollController!.position.maxScrollExtent,
-          duration: Duration(milliseconds: 500),
+          duration: Duration(milliseconds: 100),
           curve: Curves.easeInOut,
         );
       });
@@ -340,10 +421,10 @@ class _ChatScreenState extends State<ChatScreen> {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => SubscriptionScreen()));
     } else {
-      controller.clear();
+      inputTextcontroller.clear();
       setState(() {
         conv.add({"msg": question, "index": 0});
-        addedConversation.add({"msg": question, "index": 0});
+        // addedConversation.add({"msg": question, "index": 0});
       });
       replyFunction();
       sharedPreferencesUtil.saveInt('totalSent', totalSent + 1);
