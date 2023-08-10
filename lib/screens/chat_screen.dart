@@ -48,15 +48,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool imageProcessing = false;
 
+  late int totalSent;
+  late bool isPremium;
+
+  late Chat myChat;
+
   void replyFunction() async {
     setState(() {
       isStreaming = true;
     });
 
-    // String botReply = await ApiService.sendMessage(contextList: getContext());
-
-    getStreamResponse(contextMapList: getContext_Hive());
-    // print('Bot Reply $botReply');
+    getStreamResponse(contextMapList: getContext());
 
     setState(() {
       myChat.chatMessageList.add(ChatMessage(msg: '', senderIndex: 1));
@@ -130,11 +132,6 @@ class _ChatScreenState extends State<ChatScreen> {
     print('Full Text: $fullText');
     return fullText;
   }
-
-  late int totalSent;
-  late bool isPremium;
-
-  late Chat myChat;
 
   @override
   void initState() {
@@ -269,13 +266,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                               ),
                             ),
-                            // if (isStreaming)
-                            //   const SpinKitThreeBounce(
-                            //     color: Colors.white,
-                            //     size: 18,
-                            //   ),
-
-                            //Send Message Input Section
                             PromptInputWidget(
                                 controller: inputTextcontroller,
                                 onPressedSendButton: () async {
@@ -336,8 +326,6 @@ class _ChatScreenState extends State<ChatScreen> {
             print(myBox.keys);
             DateTime now = DateTime.now();
             int milliseconds = now.millisecondsSinceEpoch;
-            String formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(now);
-
             //Adding mychat to Hive
             var chatBox = await Hive.openBox<Chat>('chatBox');
             myChat.lastUpdateTime = milliseconds.toString();
@@ -347,41 +335,6 @@ class _ChatScreenState extends State<ChatScreen> {
               await chatBox.delete(myChat.key);
             }
             await chatBox.put(myChat.lastUpdateTime, myChat);
-            // if (widget.gobackPageIndex < 2) {
-            //   List<Map<String, dynamic>> conWithTime = [];
-            //   conWithTime.add({
-            //     "conversation": conv,
-            //     "key": uniqueId,
-            //     "timeStamp": formattedDate
-            //   });
-            //   await myBox.add(conWithTime);
-            // } else {
-            //   //If Chat is updated
-            //   if (checkLength < conv.length) {
-            //     List<Map<String, dynamic>> conWithTime = [];
-            //     conWithTime.add({
-            //       "conversation": conv,
-            //       "key": uniqueId,
-            //       "timeStamp": formattedDate
-            //     });
-
-            //     var hiveList = myBox.values.toList();
-
-            //     hiveList.removeWhere((innerList) {
-            //       final map = innerList.first;
-            //       return map['key'] == widget.chatKey;
-            //     });
-
-            //     await myBox.clear();
-
-            //     for (var entry in hiveList) {
-            //       myBox.add(entry);
-            //     }
-
-            //     await myBox.add(conWithTime);
-            //   }
-            // }
-
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) {
               return StartScreen(pageIndex: widget.gobackPageIndex);
@@ -398,31 +351,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // List<Map<String, String>> getContext() {
-  //   List<Map<String, String>> contextList = [];
-  //   int totalWords = 0;
-  //   for (int i = conv.length - 1; i >= 0; i--) {
-  //     totalWords += conv[i]['msg'].toString().split(' ').length;
-  //     if (totalWords > contextLimit) {
-  //       break;
-  //     }
-  //     try {
-  //       contextList.add({
-  //         'role': conv[i]['index'] == 0 ? 'user' : 'assistant',
-  //         'content': conv[i]['msg']
-  //       });
-  //     } catch (e) {
-  //       print('Erron in making contest list');
-  //     }
-  //   }
-  //   ;
-  //   print('Total Words: $totalWords');
-  //   contextList = contextList.reversed.toList();
-  //   print(contextList);
-  //   return contextList;
-  // }
-
-  List<Map<String, String>> getContext_Hive() {
+  List<Map<String, String>> getContext() {
     List<Map<String, String>> contextList = [];
     int totalWords = 0;
     for (int i = myChat.chatMessageList.length - 1; i >= 0; i--) {
