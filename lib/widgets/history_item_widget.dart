@@ -39,11 +39,6 @@ class HistoryItemWidget extends StatelessWidget {
                 color: Colors.grey,
                 fontSize: 13,
               ),
-              // TextWidget(
-              //   // label: Hkey,
-              //   color: Colors.yellow,
-              //   fontSize: 13,
-              // ),
             ],
           ),
           trailing: Icon(

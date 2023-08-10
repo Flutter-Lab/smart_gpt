@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
-import '../constants/constants.dart';
-
 class TaskCardSummaryWidget extends StatelessWidget {
   final VoidCallback? onPressed;
   const TaskCardSummaryWidget({
