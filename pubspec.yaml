@@ -59,6 +59,8 @@ dependencies:
   google_mlkit_text_recognition: ^0.10.0
   firedart: ^0.9.7
   dart_openai: ^4.0.0
+  hive_generator: ^2.0.0
+  build_runner: ^2.4.6
 
 
 dev_dependencies:

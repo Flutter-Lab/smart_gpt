@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -8,6 +8,8 @@ import 'package:smart_gpt_ai/widgets/history_item_widget.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
 import '../constants/constants.dart';
+
+import '../hive-test/chat_model.dart';
 import 'chat_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -18,33 +20,8 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  var myBox = Hive.box('myBox');
-  List<Map<String, dynamic>> oldConv = [];
-  int count = 0;
-  var hiveList = [];
-
-  Future<void> sortFunction() async {
-    if (count == 0) {
-      count = 1;
-      hiveList = myBox.values.toList();
-      if (hiveList.length > 1) {
-        hiveList.sort((b, a) => a[0]['ID'].compareTo(b[0]['ID']));
-        await myBox.clear();
-        for (var entry in hiveList) {
-          myBox.add(entry);
-        }
-        var updatedHiveList = myBox.values.toList();
-        hiveList = updatedHiveList;
-        // print(hiveList);
-        // print('first');
-      }
-    }
-  }
-
   @override
   void initState() {
-    sortFunction();
-
     super.initState();
   }
 
@@ -59,7 +36,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
           automaticallyImplyLeading: false,
           actions: [
             //If this is History Screen
-
             PopupMenuButton(
                 color: ColorPallate.bgColor,
                 icon: Icon(
@@ -70,9 +46,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   return [
                     PopupMenuItem(
                         onTap: () async {
-                          var myBox = Hive.box('myBox');
-                          await myBox.clear();
-                          hiveList = [];
+                          await clearChatBox();
                           setState(() {});
                         },
                         child: Text(
@@ -87,61 +61,64 @@ class _HistoryScreenState extends State<HistoryScreen> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              hiveList.isNotEmpty
-                  ? Flexible(
-                      child: ListView.builder(
-                          itemCount: hiveList.length,
-                          itemBuilder: (context, index) {
-                            try {
-                              if (index >= 0 && index < hiveList.length) {
-                                String msg = hiveList[index][0]["conversation"]
-                                    [0]["msg"];
-                                String timeStamp =
-                                    hiveList[index][0]["timeStamp"];
-                                return HistoryItemWidget(
-                                  title: msg,
-                                  timeStamp: timeStamp,
+              Flexible(
+                child: FutureBuilder(
+                    future: openChatBox(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        var chatList = snapshot.data!.values.toList();
+
+                        chatList.sort((a, b) =>
+                            b.lastUpdateTime.compareTo(a.lastUpdateTime));
+
+                        return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: chatList.length,
+                            itemBuilder: (context, index) {
+                              Chat chat = chatList[index];
+
+                              DateTime dateTime =
+                                  DateTime.fromMillisecondsSinceEpoch(
+                                      int.parse(chat.lastUpdateTime));
+
+                              String formattedDate =
+                                  DateFormat('dd/MM/yyyy hh:mm a')
+                                      .format(dateTime);
+
+                              return HistoryItemWidget(
                                   onPressed: () {
-                                    oldConv = [];
-                                    List<dynamic> ontimeList =
-                                        hiveList[index][0]["conversation"];
-                                    for (var element in ontimeList) {
-                                      Map<String, dynamic> convertedMap =
-                                          Map<String, dynamic>.from(
-                                              element.cast<String, dynamic>());
-                                      oldConv.add(convertedMap);
-                                    }
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => ChatScreen(
-                                                  conversation: oldConv,
                                                   gobackPageIndex: 2,
-                                                  dateTime: '',
+                                                  chatObject: chat,
                                                 )));
                                   },
-                                );
-                              } else {
-                                return Container();
-                              }
-                            } catch (error) {
-                              if (kDebugMode) {
-                                print(error);
-                              }
-                            }
-                            return null;
-                          }),
-                    )
-                  : Expanded(
-                      child: Center(
-                        child: TextWidget(
-                          label: 'History is Empty',
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                                  title: chat.chatMessageList[0].msg,
+                                  timeStamp: formattedDate);
+                            });
+                      } else {
+                        return Center(
+                          child: TextWidget(
+                            label: 'History is Empty',
+                          ),
+                        );
+                      }
+                    }),
+              ),
             ],
           ),
         ));
+  }
+
+  Future<Box<Chat>> openChatBox() async {
+    var chatBox = await Hive.openBox<Chat>('chatBox');
+    return chatBox;
+  }
+
+  Future<void> clearChatBox() async {
+    var chatBox = await Hive.openBox<Chat>('chatBox');
+    chatBox.clear();
   }
 }

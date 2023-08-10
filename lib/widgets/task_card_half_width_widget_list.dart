@@ -6,6 +6,7 @@ import 'package:smart_gpt_ai/models/half_width_task_card_model.dart';
 import 'package:smart_gpt_ai/widgets/task_card_widget_half_width.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
+import '../hive-test/chat_model.dart';
 import '../screens/chat_screen.dart';
 
 class TaskCardHalfWidthGridListWidget extends StatelessWidget {
@@ -49,16 +50,15 @@ class TaskCardHalfWidthGridListWidget extends StatelessWidget {
                         return TaskCardHalfWidth(
                           taskModel: taskModel,
                           onPressed: () {
-                            List<Map<String, dynamic>> conversation = [];
-                            conversation
-                                .add({"msg": taskModel.msg, "index": 0});
+                            Chat chat = Chat(chatMessageList: [
+                              ChatMessage(msg: taskModel.msg, senderIndex: 0)
+                            ], lastUpdateTime: '');
+
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => ChatScreen(
-                                        conversation: conversation,
-                                        dateTime: '',
-                                        gobackPageIndex: 1)));
+                                        chatObject: chat, gobackPageIndex: 1)));
                           },
                         );
                       }),

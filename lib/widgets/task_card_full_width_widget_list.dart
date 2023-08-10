@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_gpt_ai/hive-test/chat_model.dart';
 
 import 'package:smart_gpt_ai/widgets/task_card_widget_full_width.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
@@ -34,13 +35,15 @@ class TaskCardSectionListWidget extends StatelessWidget {
                       title: taskCard.title,
                       icon: taskCard.icon,
                       onPressed: () {
-                        conversation.add({"msg": taskCard.msg, "index": 0});
+                        Chat chat = Chat(chatMessageList: [
+                          ChatMessage(msg: taskCard.msg, senderIndex: 0)
+                        ], lastUpdateTime: '');
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => ChatScreen(
+                                    chatObject: chat,
                                     conversation: conversation,
-                                    dateTime: '',
                                     gobackPageIndex: 0)));
                       },
                     ),

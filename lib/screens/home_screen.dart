@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/widgets/home_screen_top_section.dart';
 import 'package:smart_gpt_ai/widgets/task_card_full_width_widget_list.dart';
 import '../constants/constants.dart';
+import '../hive-test/chat_model.dart';
 import '../services/image_to_text_service.dart';
 import '../widgets/image_scanning_animation_widget.dart';
 import '../widgets/prompt_input_widget.dart';
@@ -65,18 +66,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 });
 
                                 if (imageText != null) {
-                                  List<Map<String, dynamic>> conversation = [];
-                                  conversation.add({
-                                    "msg": "Summarize this text\n$imageText",
-                                    "index": 0
-                                  });
+                                  Chat chat = Chat(chatMessageList: [
+                                    ChatMessage(msg: imageText, senderIndex: 0)
+                                  ], lastUpdateTime: '');
 
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => ChatScreen(
-                                              conversation: conversation,
-                                              dateTime: '',
+                                              chatObject: chat,
                                               gobackPageIndex: 0)));
                                 }
                               }
@@ -92,16 +90,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                         : Colors.deepPurple,
                                     taskModel: cardmodel,
                                     onPressed: () {
-                                      List<Map<String, dynamic>> conversation =
-                                          [];
-                                      conversation.add(
-                                          {"msg": cardmodel.msg, "index": 0});
+                                      Chat chat = Chat(chatMessageList: [
+                                        ChatMessage(
+                                            msg: cardmodel.msg, senderIndex: 0)
+                                      ], lastUpdateTime: '');
+
                                       Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => ChatScreen(
-                                                  conversation: conversation,
-                                                  dateTime: '',
+                                                  chatObject: chat,
                                                   gobackPageIndex: 0)));
                                     },
                                   ),
@@ -123,15 +121,15 @@ class _HomeScreenState extends State<HomeScreen> {
           PromptInputWidget(
             controller: controller,
             onPressedSendButton: () {
-              List<Map<String, dynamic>> conversation = [];
-              conversation.add({"msg": controller.text, "index": 0});
-              Navigator.push(
+              Chat chat = Chat(chatMessageList: [
+                ChatMessage(msg: controller.text, senderIndex: 0)
+              ], lastUpdateTime: '');
+
+              Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                          conversation: conversation,
-                          dateTime: '',
-                          gobackPageIndex: 0)));
+                      builder: (context) =>
+                          ChatScreen(chatObject: chat, gobackPageIndex: 0)));
             },
             onPressedCameraButton: () async {
               int? selectedImgSrc =
@@ -150,17 +148,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
 
                 if (imageText != null) {
-                  List<Map<String, dynamic>> conversation = [];
-                  conversation.add(
-                      {"msg": "Summarize this text\n$imageText", "index": 0});
+                  Chat chat = Chat(chatMessageList: [
+                    ChatMessage(msg: imageText, senderIndex: 0)
+                  ], lastUpdateTime: '');
 
-                  Navigator.push(
+                  Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                           builder: (context) => ChatScreen(
-                              conversation: conversation,
-                              dateTime: '',
-                              gobackPageIndex: 0)));
+                              chatObject: chat, gobackPageIndex: 0)));
                 }
               }
             },

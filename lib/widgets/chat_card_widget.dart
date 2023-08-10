@@ -1,10 +1,12 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants/constants.dart';
 
-class ChatCardWidget extends StatefulWidget {
-  ChatCardWidget(
+class MessageCardWidget extends StatefulWidget {
+  MessageCardWidget(
       {super.key,
       required this.chatIndex,
       required this.msg,
@@ -19,10 +21,10 @@ class ChatCardWidget extends StatefulWidget {
   final int currentMsgIndex;
 
   @override
-  State<ChatCardWidget> createState() => _ChatCardWidgetState();
+  State<MessageCardWidget> createState() => _MessageCardWidgetState();
 }
 
-class _ChatCardWidgetState extends State<ChatCardWidget> {
+class _MessageCardWidgetState extends State<MessageCardWidget> {
   @override
   Widget build(BuildContext context) {
     return Row(

@@ -37,12 +37,6 @@ class TaskCardSummaryWidget extends StatelessWidget {
               maxLines: 3,
               style: TextStyle(color: Colors.white, fontSize: 15),
             ),
-            // TextWidget(
-            //   label: 'Summarize text from photos',
-            //   color: Colors.grey,
-            //   fontSize: 13,
-
-            // ),
             SizedBox(height: 50),
             Row(
               mainAxisSize: MainAxisSize.max,
