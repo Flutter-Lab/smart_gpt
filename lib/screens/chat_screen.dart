@@ -295,6 +295,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             PromptInputWidget(
                                 controller: inputTextcontroller,
                                 onPressedSendButton: () async {
+
+                                                                   
                                   scrollToBottom();
                                   print('Total Sent: $totalSent');
                                   print(('Premium Status: $isPremium'));

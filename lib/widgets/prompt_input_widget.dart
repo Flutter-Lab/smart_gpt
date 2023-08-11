@@ -19,6 +19,17 @@ class PromptInputWidget extends StatefulWidget {
 }
 
 class _PromptInputWidgetState extends State<PromptInputWidget> {
+  bool? hasData;
+  void _validateInput(String value) {
+    setState(() {
+      if (value.isEmpty || value.length == 0) {
+        hasData = false;
+      } else {
+        hasData = true;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -37,6 +48,7 @@ class _PromptInputWidgetState extends State<PromptInputWidget> {
                 style: TextStyle(color: Colors.white),
                 controller: widget.controller,
                 onSubmitted: (value) async {},
+                onChanged: _validateInput,
                 decoration: InputDecoration(
                     suffixIcon: IconButton(
                       onPressed: () {
@@ -54,7 +66,7 @@ class _PromptInputWidgetState extends State<PromptInputWidget> {
             ),
           ),
           IconButton(
-            onPressed: widget.onPressedSendButton,
+            onPressed: hasData == true ? widget.onPressedSendButton : null,
             icon: Icon(
               Icons.send,
               color: Colors.green,
