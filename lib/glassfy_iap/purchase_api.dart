@@ -38,13 +38,14 @@ class PurchaseApi {
   // print('Current Permission ID is: ${permission.permissionId}');
 
   static Future<bool> isUserPremium() async {
-    if (Platform.isWindows) {
+    if (!Platform.isAndroid) {
       return true;
     }
     bool isPremium = false;
     print('Purchase Checking started');
     try {
       var permission = await Glassfy.permissions();
+
       if (permission.all!
           .any((p) => p.permissionId == "premium" && p.isValid == true)) {
         // unlock aFeature
@@ -64,6 +65,7 @@ class PurchaseApi {
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isPremium', isPremium);
+
     return isPremium;
   }
 
@@ -90,5 +92,17 @@ class PurchaseApi {
     }
 
     return isValidPurchase;
+  }
+
+  static Future<bool> is_userPremium() async {
+    bool isPremium = false;
+
+    if (Platform.isAndroid) {
+      isPremium = await PurchaseApi.isUserPremium();
+    } else {
+      isPremium = true;
+    }
+
+    return isPremium;
   }
 }

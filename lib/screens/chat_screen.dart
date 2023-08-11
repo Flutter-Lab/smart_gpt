@@ -188,7 +188,7 @@ class _ChatScreenState extends State<ChatScreen> {
             backgroundColor: ColorPallate.cardColor,
           ),
           body: FutureBuilder<bool>(
-              future: PurchaseApi.isUserPremium(),
+              future: PurchaseApi.is_userPremium(),
               builder: (context, snapshot) {
                 return !snapshot.hasData
                     ? Center(
@@ -212,27 +212,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                   // Hide the keyboard when scrolling starts
                                   FocusScope.of(context).unfocus();
                                 }
-
-                                // if (scrollNotification
-                                //         is ScrollEndNotification &&
-                                //     scrollNotification.metrics.atEdge) {
-                                //   print("Scrolled to the end of ListView");
-
-                                //   return true;
-                                // }
-
-                                // if (scrollController!.hasClients) {
-                                //   scrollController!.addListener(() {
-                                //     if (scrollController!.position.pixels ==
-                                //             scrollController!
-                                //                 .position.maxScrollExtent &&
-                                //         scrollNotification
-                                //             is ScrollEndNotification &&
-                                //         scrollNotification.metrics.atEdge) {
-                                //       print("Scrolled to the end of ListView");
-                                //     }
-                                //   });
-                                // }
 
                                 return false;
                               },
@@ -295,8 +274,6 @@ class _ChatScreenState extends State<ChatScreen> {
                             PromptInputWidget(
                                 controller: inputTextcontroller,
                                 onPressedSendButton: () async {
-
-                                                                   
                                   scrollToBottom();
                                   print('Total Sent: $totalSent');
                                   print(('Premium Status: $isPremium'));
@@ -408,12 +385,12 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void scrollToBottom() {
-    if (scrollController != null && scrollController!.hasClients) {
+    if (scrollController.hasClients) {
       print('Scrolling to Bottom');
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        scrollController!.animateTo(
-          scrollController!.position.maxScrollExtent,
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
           duration: Duration(milliseconds: 100),
           curve: Curves.easeInOut,
         );

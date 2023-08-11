@@ -19,9 +19,10 @@ import 'package:firedart/firedart.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
 
   final sharedPreferencesUtil = SharedPreferencesUtil();
   await sharedPreferencesUtil.initialize();
@@ -31,10 +32,9 @@ void main() async {
   }
   Firestore.initialize(DefaultFirebaseOptions.windows.projectId);
 
-  bool isUserPro = await PurchaseApi.isUserPremium() ||
-      Platform.isIOS ||
-      !kReleaseMode ||
-      Platform.isWindows;
+  bool isUserPro = await PurchaseApi.is_userPremium();
+
+  print('Started IOS');
 
   sharedPreferencesUtil.saveBool('isPremium', isUserPro);
 
@@ -65,10 +65,10 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
             useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
         // home: MyHomePage(
-        home: SplashScreen()
-        // home: StartScreen(
-        //   pageIndex: 0,
-        // )
+        // home: SplashScreen()
+        home: StartScreen(
+          pageIndex: 0,
+        )
         // home: HiveTestScreen(),
 
         // ),
