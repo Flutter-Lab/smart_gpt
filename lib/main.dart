@@ -7,11 +7,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/hive-test/hive_test_screen.dart';
 import 'package:smart_gpt_ai/screens/home_screen.dart';
 import 'package:smart_gpt_ai/screens/start_screen.dart';
-import 'package:smart_gpt_ai/testings/chat_steam_test.dart';
-import 'package:smart_gpt_ai/testings/firestore_windows_test.dart';
+
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
 import 'docs/firebase_options.dart';
-import 'hive-test/adapter.dart';
 import 'hive-test/chat_adapter.dart';
 import 'hive-test/chat_model.dart';
 import 'splash_screen.dart';
@@ -45,9 +43,6 @@ void main() async {
   // Open the Hive box
   await Hive.openBox('myBox');
 
-  Hive.registerAdapter<User>(UserAdapter());
-  Hive.registerAdapter<Address>(AddressAdapter());
-
   Hive.registerAdapter<Chat>(ChatAdapter());
   Hive.registerAdapter<ChatMessage>(ChatMessageAdapter());
 
@@ -70,10 +65,10 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
             useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
         // home: MyHomePage(
-        // home: SplashScreen()
-        home: StartScreen(
-          pageIndex: 0,
-        )
+        home: SplashScreen()
+        // home: StartScreen(
+        //   pageIndex: 0,
+        // )
         // home: HiveTestScreen(),
 
         // ),

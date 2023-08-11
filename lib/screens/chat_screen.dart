@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:intl/intl.dart';
 import 'package:smart_gpt_ai/constants/api_consts.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
 import 'package:smart_gpt_ai/services/api_service.dart';
@@ -43,7 +42,8 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   TextEditingController inputTextcontroller = TextEditingController();
 
-  ScrollController? scrollController;
+  ScrollController scrollController = ScrollController();
+
   final sharedPreferencesUtil = SharedPreferencesUtil();
 
   bool imageProcessing = false;
@@ -69,8 +69,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool isStreaming = false;
 
+  int scrollText = 250;
+  bool doScroll = false;
+
   Future<String> getStreamResponse(
       {required List<Map<String, String>> contextMapList}) async {
+    doScroll = true;
     setState(() {
       isStreaming = true;
     });
@@ -88,16 +92,8 @@ class _ChatScreenState extends State<ChatScreen> {
               : OpenAIChatMessageRole.assistant);
     }).toList();
 
-    Stream<OpenAIStreamChatCompletionModel> chatStream =
-        OpenAI.instance.chat.createStream(
-            model: "gpt-3.5-turbo",
-            // messages: [
-            //   OpenAIChatCompletionChoiceMessageModel(
-            //     content: "Why life is so tough?",
-            //     role: OpenAIChatMessageRole.user,
-            //   )
-            // ],
-            messages: contextList);
+    Stream<OpenAIStreamChatCompletionModel> chatStream = OpenAI.instance.chat
+        .createStream(model: "gpt-3.5-turbo", messages: contextList);
 
     chatStream.listen((streamChatCompletion) {
       final content = streamChatCompletion.choices.first.delta.content;
@@ -106,8 +102,19 @@ class _ChatScreenState extends State<ChatScreen> {
         fullText = fullText + content;
         _replyStreamController.add(fullText);
 
-        if (fullText.length < 200) {
+        //Auto Scroll Logics
+
+        if (fullText.length < scrollText) {
           scrollToBottom();
+        }
+        if (fullText.length > scrollText &&
+            scrollController.hasClients &&
+            doScroll == true &&
+            scrollController.position.pixels ==
+                scrollController.position.maxScrollExtent) {
+          print('User Scrolls in End Position');
+          scrollText += fullText.length;
+          doScroll = false;
         }
       }
     }).onDone(() {
@@ -138,6 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollController = ScrollController();
+
       scrollToBottom();
     });
     totalSent = sharedPreferencesUtil.getInt('totalSent');
@@ -204,6 +212,28 @@ class _ChatScreenState extends State<ChatScreen> {
                                   // Hide the keyboard when scrolling starts
                                   FocusScope.of(context).unfocus();
                                 }
+
+                                // if (scrollNotification
+                                //         is ScrollEndNotification &&
+                                //     scrollNotification.metrics.atEdge) {
+                                //   print("Scrolled to the end of ListView");
+
+                                //   return true;
+                                // }
+
+                                // if (scrollController!.hasClients) {
+                                //   scrollController!.addListener(() {
+                                //     if (scrollController!.position.pixels ==
+                                //             scrollController!
+                                //                 .position.maxScrollExtent &&
+                                //         scrollNotification
+                                //             is ScrollEndNotification &&
+                                //         scrollNotification.metrics.atEdge) {
+                                //       print("Scrolled to the end of ListView");
+                                //     }
+                                //   });
+                                // }
+
                                 return false;
                               },
                               child: Flexible(
@@ -214,13 +244,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                       ListView.builder(
                                         shrinkWrap: true,
                                         controller: scrollController,
-                                        // itemCount: conv.length,
                                         itemCount:
                                             myChat.chatMessageList.length,
                                         itemBuilder: (context, index) {
-                                          // String msg = conv[index]["msg"];
-                                          // int chatIndex = conv[index]["index"];
-
                                           String msg =
                                               myChat.chatMessageList[index].msg;
                                           int chatIndex = myChat

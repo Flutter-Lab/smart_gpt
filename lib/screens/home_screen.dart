@@ -1,4 +1,6 @@
 // ignore_for_file: prefer_const_constructors
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/widgets/home_screen_top_section.dart';
 import 'package:smart_gpt_ai/widgets/task_card_full_width_widget_list.dart';
@@ -49,34 +51,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Flexible(
                             child: TaskCardSummaryWidget(onPressed: () async {
-                              int? selectedImgSrc =
-                                  await ImageToTextService.getImageSrc(context);
-
-                              if (selectedImgSrc != null) {
-                                setState(() {
-                                  imageProcessing = true;
-                                });
-
-                                String? imageText =
-                                    await ImageToTextService.getTextFromImage(
-                                        selectedImgSrc);
-
-                                setState(() {
-                                  imageProcessing = false;
-                                });
-
-                                if (imageText != null) {
-                                  Chat chat = Chat(chatMessageList: [
-                                    ChatMessage(msg: imageText, senderIndex: 0)
-                                  ], lastUpdateTime: '');
-
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ChatScreen(
-                                              chatObject: chat,
-                                              gobackPageIndex: 0)));
-                                }
+                              if (Platform.isAndroid) {
+                                await extractAndroidImage();
+                              } else {
+                                print('Currently Support Only Android');
                               }
                             }),
                           ),
@@ -164,5 +142,34 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  extractAndroidImage() async {
+    int? selectedImgSrc = await ImageToTextService.getImageSrc(context);
+
+    if (selectedImgSrc != null) {
+      setState(() {
+        imageProcessing = true;
+      });
+
+      String? imageText =
+          await ImageToTextService.getTextFromImage(selectedImgSrc);
+
+      setState(() {
+        imageProcessing = false;
+      });
+
+      if (imageText != null) {
+        Chat chat = Chat(
+            chatMessageList: [ChatMessage(msg: imageText, senderIndex: 0)],
+            lastUpdateTime: '');
+
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ChatScreen(chatObject: chat, gobackPageIndex: 0)));
+      }
+    }
   }
 }
