@@ -21,8 +21,6 @@ import '../widgets/text_widget.dart';
 import 'start_screen.dart';
 import 'subscription_screen.dart';
 
-final myBox = Hive.box('myBox');
-
 class ChatScreen extends StatefulWidget {
   List<Map<String, dynamic>>? conversation;
   final int gobackPageIndex;
@@ -72,74 +70,6 @@ class _ChatScreenState extends State<ChatScreen> {
   int scrollText = 250;
   bool doScroll = false;
 
-  Future<String> getStreamResponse(
-      {required List<Map<String, String>> contextMapList}) async {
-    doScroll = true;
-    setState(() {
-      isStreaming = true;
-    });
-
-    OpenAI.apiKey = await ApiService.getApiKey();
-    String fullText = '';
-
-//Converting Context List
-    List<OpenAIChatCompletionChoiceMessageModel> contextList =
-        contextMapList.map((data) {
-      return OpenAIChatCompletionChoiceMessageModel(
-          content: data['content']!,
-          role: data['role'] == 'user'
-              ? OpenAIChatMessageRole.user
-              : OpenAIChatMessageRole.assistant);
-    }).toList();
-
-    Stream<OpenAIStreamChatCompletionModel> chatStream = OpenAI.instance.chat
-        .createStream(model: "gpt-3.5-turbo", messages: contextList);
-
-    chatStream.listen((streamChatCompletion) {
-      final content = streamChatCompletion.choices.first.delta.content;
-      // print(content);
-      if (content != null) {
-        fullText = fullText + content;
-        _replyStreamController.add(fullText);
-
-        //Auto Scroll Logics
-
-        if (fullText.length < scrollText) {
-          scrollToBottom();
-        }
-        if (fullText.length > scrollText &&
-            scrollController.hasClients &&
-            doScroll == true &&
-            scrollController.position.pixels ==
-                scrollController.position.maxScrollExtent) {
-          print('User Scrolls in End Position');
-          scrollText += fullText.length;
-          doScroll = false;
-        }
-      }
-    }).onDone(() {
-      print('Stream is Done');
-      setState(() {
-        // conv.last = {"msg": fullText, "index": 1};
-
-        myChat.chatMessageList.last =
-            ChatMessage(msg: fullText, senderIndex: 1);
-
-        isStreaming = false;
-
-        //Adding Bot Message to myChat
-        // ChatMessage botMsg = ChatMessage(msg: fullText, senderIndex: 1);
-        // myChat.chatMessageList.add(botMsg);
-      });
-    });
-
-    _replyStreamController.done;
-
-    // botReply = fullText;
-    print('Full Text: $fullText');
-    return fullText;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -161,7 +91,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    scrollController!.dispose();
+    scrollController.dispose();
     _replyStreamController.close();
 
     super.dispose();
@@ -188,7 +118,7 @@ class _ChatScreenState extends State<ChatScreen> {
             backgroundColor: ColorPallate.cardColor,
           ),
           body: FutureBuilder<bool>(
-              future: PurchaseApi.is_userPremium(),
+              future: PurchaseApi.isUserPremium(),
               builder: (context, snapshot) {
                 return !snapshot.hasData
                     ? Center(
@@ -328,7 +258,6 @@ class _ChatScreenState extends State<ChatScreen> {
             size: 30,
           ),
           onPressed: () async {
-            print(myBox.keys);
             DateTime now = DateTime.now();
             int milliseconds = now.millisecondsSinceEpoch;
             //Adding mychat to Hive
@@ -412,5 +341,67 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       print('Total Sent: $totalSent');
     }
+  }
+
+  Future<String> getStreamResponse(
+      {required List<Map<String, String>> contextMapList}) async {
+    doScroll = true;
+    setState(() {
+      isStreaming = true;
+    });
+
+    OpenAI.apiKey = await ApiService.getApiKey();
+    String fullText = '';
+
+//Converting Context List
+    List<OpenAIChatCompletionChoiceMessageModel> contextList =
+        contextMapList.map((data) {
+      return OpenAIChatCompletionChoiceMessageModel(
+          content: data['content']!,
+          role: data['role'] == 'user'
+              ? OpenAIChatMessageRole.user
+              : OpenAIChatMessageRole.assistant);
+    }).toList();
+
+    Stream<OpenAIStreamChatCompletionModel> chatStream = OpenAI.instance.chat
+        .createStream(model: "gpt-3.5-turbo", messages: contextList);
+
+    chatStream.listen((streamChatCompletion) {
+      final content = streamChatCompletion.choices.first.delta.content;
+      // print(content);
+      if (content != null) {
+        fullText = fullText + content;
+        _replyStreamController.add(fullText);
+
+        //Auto Scroll Logics
+
+        if (fullText.length < scrollText) {
+          scrollToBottom();
+        }
+        if (fullText.length > scrollText &&
+            scrollController.hasClients &&
+            doScroll == true &&
+            scrollController.position.pixels ==
+                scrollController.position.maxScrollExtent) {
+          print('User Scrolls in End Position');
+          scrollText += fullText.length;
+          doScroll = false;
+        }
+      }
+    }).onDone(() {
+      print('Stream is Done');
+      setState(() {
+        myChat.chatMessageList.last =
+            ChatMessage(msg: fullText, senderIndex: 1);
+
+        isStreaming = false;
+      });
+    });
+
+    _replyStreamController.done;
+
+    // botReply = fullText;
+    print('Full Text: $fullText');
+    return fullText;
   }
 }

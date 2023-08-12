@@ -93,16 +93,4 @@ class PurchaseApi {
 
     return isValidPurchase;
   }
-
-  static Future<bool> is_userPremium() async {
-    bool isPremium = false;
-
-    if (Platform.isAndroid) {
-      isPremium = await PurchaseApi.isUserPremium();
-    } else {
-      isPremium = true;
-    }
-
-    return isPremium;
-  }
 }
