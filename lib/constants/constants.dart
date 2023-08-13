@@ -14,4 +14,4 @@ class ColorPallate {
   static const Color redColor = Color(0xFFE63946);
 }
 
-const freeChatLimit = 10;
+const freeChatLimit = 20;

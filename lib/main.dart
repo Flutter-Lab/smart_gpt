@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/screens/start_screen.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
@@ -14,7 +15,9 @@ import 'constants/constants.dart';
 import 'package:firedart/firedart.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   final sharedPreferencesUtil = SharedPreferencesUtil();
   await sharedPreferencesUtil.initialize();
@@ -39,12 +42,15 @@ void main() async {
   );
 }
 
+// whenever your initialization is completed, remove the splash screen:
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
