@@ -63,7 +63,7 @@ class _PromptInputWidgetState extends State<PromptInputWidget> {
                     ),
                     border: InputBorder.none,
                     hintText: 'How can I help you?',
-                    hintStyle: TextStyle(color: Colors.grey.shade600)),
+                    hintStyle: TextStyle(color: Colors.grey.shade800)),
               ),
             ),
           ),
