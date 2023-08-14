@@ -8,11 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:smart_gpt_ai/constants/api_consts.dart';
+import 'package:smart_gpt_ai/data/response_helper.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
 import 'package:smart_gpt_ai/services/api_service.dart';
 import 'package:smart_gpt_ai/widgets/image_scanning_animation_widget.dart';
 import '../constants/constants.dart';
-import '../hive-test/chat_model.dart';
+import '../testings/hive-test/chat_model.dart';
 import '../services/image_to_text_service.dart';
 import '../utilities/shared_prefs.dart';
 import '../widgets/chat_card_widget.dart';
@@ -187,16 +188,19 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                               ),
                             ),
+                            if (!isStreaming) reponseHelperWidget(),
                             PromptInputWidget(
                                 isStreaming: isStreaming,
                                 controller: inputTextcontroller,
-                                onPressedSendButton: isStreaming
-                                    ? () {
-                                        setState(() {
-                                          isStreaming = false;
-                                        });
-                                      }
-                                    : sendMessage,
+                                onPressedSendButton: () {
+                                  if (isStreaming) {
+                                    setState(() {
+                                      isStreaming = false;
+                                    });
+                                  } else {
+                                    sendMessage(msg: inputTextcontroller.text);
+                                  }
+                                },
                                 onPressedCameraButton: () async {
                                   int? selectedImgSrc =
                                       await ImageToTextService.getImageSrc(
@@ -226,14 +230,42 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void sendMessage() async {
+  Container reponseHelperWidget() {
+    return Container(
+      height: 36,
+      margin: EdgeInsets.only(bottom: 8),
+      child: ListView.builder(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          itemCount: responseHelperList.length,
+          itemBuilder: (context, index) {
+            return InkWell(
+              onTap: () {
+                sendMessage(msg: responseHelperList[index]);
+              },
+              child: Container(
+                padding: EdgeInsets.all(8),
+                margin: EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                    color: ColorPallate.light1,
+                    borderRadius: BorderRadius.circular(16)),
+                child: Text(
+                  responseHelperList[index],
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            );
+          }),
+    );
+  }
+
+  void sendMessage({required String msg}) async {
     scrollToBottom();
     print('Total Sent: $totalSent');
     print(('Premium Status: $isPremium'));
 
     //Add Message to Chat object
-    ChatMessage chatMessage =
-        ChatMessage(msg: inputTextcontroller.text, senderIndex: 0);
+    ChatMessage chatMessage = ChatMessage(msg: msg, senderIndex: 0);
 
     myChat.chatMessageList.add(chatMessage);
 
@@ -251,6 +283,9 @@ class _ChatScreenState extends State<ChatScreen> {
             size: 30,
           ),
           onPressed: () async {
+            setState(() {
+              isStreaming = false;
+            });
             DateTime now = DateTime.now();
             int milliseconds = now.millisecondsSinceEpoch;
             //Adding mychat to Hive

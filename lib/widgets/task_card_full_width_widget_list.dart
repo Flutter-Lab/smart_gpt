@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smart_gpt_ai/hive-test/chat_model.dart';
+import 'package:smart_gpt_ai/testings/hive-test/chat_model.dart';
 
 import 'package:smart_gpt_ai/widgets/task_card_widget_full_width.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';

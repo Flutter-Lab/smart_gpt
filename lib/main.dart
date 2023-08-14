@@ -9,8 +9,8 @@ import 'package:smart_gpt_ai/screens/start_screen.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
 import 'package:smart_gpt_ai/testings/stream_practice.dart';
 import 'docs/firebase_options.dart';
-import 'hive-test/chat_adapter.dart';
-import 'hive-test/chat_model.dart';
+import 'testings/hive-test/chat_adapter.dart';
+import 'testings/hive-test/chat_model.dart';
 import 'utilities/shared_prefs.dart';
 import 'constants/constants.dart';
 import 'package:firedart/firedart.dart';
@@ -55,7 +55,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
+        useMaterial3: true,
+        scaffoldBackgroundColor: ColorPallate.bgColor,
+        textTheme: TextTheme(
+          bodyMedium:
+              TextStyle(color: Colors.white), // Set default text color here
+          // You can customize other text styles as well
+        ),
+      ),
       // home: MyHomePage(
       // home: SplashScreen()
       home: StartScreen(

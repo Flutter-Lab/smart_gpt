@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/widgets/home_screen_top_section.dart';
 import 'package:smart_gpt_ai/widgets/task_card_full_width_widget_list.dart';
 import '../constants/constants.dart';
-import '../hive-test/chat_model.dart';
+import '../testings/hive-test/chat_model.dart';
 import '../services/image_to_text_service.dart';
 import '../widgets/image_scanning_animation_widget.dart';
 import '../widgets/prompt_input_widget.dart';

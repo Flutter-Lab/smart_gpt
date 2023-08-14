@@ -71,7 +71,7 @@ class _PromptInputWidgetState extends State<PromptInputWidget> {
             margin: EdgeInsets.only(left: 8),
             padding: EdgeInsets.all(4),
             decoration: BoxDecoration(
-                color: Colors.greenAccent,
+                color: ColorPallate.bgColor,
                 borderRadius: BorderRadius.circular(16)),
             child: IconButton(
               onPressed: hasData == true || widget.isStreaming
@@ -79,7 +79,7 @@ class _PromptInputWidgetState extends State<PromptInputWidget> {
                   : null,
               icon: Icon(
                 widget.isStreaming ? Icons.stop : Icons.send,
-                color: widget.isStreaming ? Colors.blueAccent : Colors.white,
+                color: widget.isStreaming ? Colors.redAccent : Colors.white,
                 size: 30,
               ),
             ),

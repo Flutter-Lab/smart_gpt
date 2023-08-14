@@ -9,7 +9,7 @@ import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
 import '../constants/constants.dart';
 
-import '../hive-test/chat_model.dart';
+import '../testings/hive-test/chat_model.dart';
 import 'chat_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
