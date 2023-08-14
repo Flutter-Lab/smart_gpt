@@ -187,14 +187,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                               ),
                             ),
-                            // if (isStreaming == true)
-                            //   ElevatedButton(
-                            //       onPressed: () {
-                            //         setState(() {
-                            //           isStreaming = false;
-                            //         });
-                            //       },
-                            //       child: Text('Stop')),
                             PromptInputWidget(
                                 isStreaming: isStreaming,
                                 controller: inputTextcontroller,
