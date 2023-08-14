@@ -51,20 +51,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   late Chat myChat;
 
-  void replyFunction() async {
-    setState(() {
-      isStreaming = true;
-    });
-
-    getStreamResponse(contextMapList: getContext());
-
-    setState(() {
-      myChat.chatMessageList.add(ChatMessage(msg: '', senderIndex: 1));
-    });
-
-    scrollToBottom();
-  }
-
   bool isStreaming = false;
 
   int scrollText = 250;
@@ -74,7 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      scrollController = ScrollController();
+      // scrollController = ScrollController();
 
       scrollToBottom();
     });
@@ -195,30 +181,30 @@ class _ChatScreenState extends State<ChatScreen> {
                                         },
                                       ),
                                       if (imageProcessing == true)
-                                        ImageScanAnimationWidget()
+                                        ImageScanAnimationWidget(),
                                     ],
                                   ),
                                 ),
                               ),
                             ),
+                            // if (isStreaming == true)
+                            //   ElevatedButton(
+                            //       onPressed: () {
+                            //         setState(() {
+                            //           isStreaming = false;
+                            //         });
+                            //       },
+                            //       child: Text('Stop')),
                             PromptInputWidget(
+                                isStreaming: isStreaming,
                                 controller: inputTextcontroller,
-                                onPressedSendButton: () async {
-                                  scrollToBottom();
-                                  print('Total Sent: $totalSent');
-                                  print(('Premium Status: $isPremium'));
-
-                                  //Add Message to Chat object
-                                  ChatMessage chatMessage = ChatMessage(
-                                      msg: inputTextcontroller.text,
-                                      senderIndex: 0);
-
-                                  myChat.chatMessageList.add(chatMessage);
-
-                                  //If freeLimit cross and User is not Premium
-                                  //Then Go to Subscription Screen
-                                  limitCheckAndSend();
-                                },
+                                onPressedSendButton: isStreaming
+                                    ? () {
+                                        setState(() {
+                                          isStreaming = false;
+                                        });
+                                      }
+                                    : sendMessage,
                                 onPressedCameraButton: () async {
                                   int? selectedImgSrc =
                                       await ImageToTextService.getImageSrc(
@@ -246,6 +232,21 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       return SubscriptionScreen();
     }
+  }
+
+  void sendMessage() async {
+    scrollToBottom();
+    print('Total Sent: $totalSent');
+    print(('Premium Status: $isPremium'));
+
+    //Add Message to Chat object
+    ChatMessage chatMessage =
+        ChatMessage(msg: inputTextcontroller.text, senderIndex: 0);
+
+    myChat.chatMessageList.add(chatMessage);
+
+    //If freeLimit cross and User is not Premium Then Go to Subscription Screen
+    limitCheckAndSend();
   }
 
   Stack appBarTitleWidget(BuildContext context) {
@@ -327,6 +328,20 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void replyFunction() async {
+    setState(() {
+      isStreaming = true;
+    });
+
+    getStreamResponse(contextMapList: getContext());
+
+    setState(() {
+      myChat.chatMessageList.add(ChatMessage(msg: '', senderIndex: 1));
+    });
+
+    scrollToBottom();
+  }
+
   void limitCheckAndSend() {
     if (totalSent > freeChatLimit && !isPremium) {
       Navigator.push(context,
@@ -342,6 +357,11 @@ class _ChatScreenState extends State<ChatScreen> {
       print('Total Sent: $totalSent');
     }
   }
+
+  late Stream<OpenAIStreamChatCompletionModel> chatStream;
+
+  late StreamSubscription<OpenAIStreamChatCompletionModel>
+      chatStreamSubscription;
 
   Future<String> getStreamResponse(
       {required List<Map<String, String>> contextMapList}) async {
@@ -363,32 +383,42 @@ class _ChatScreenState extends State<ChatScreen> {
               : OpenAIChatMessageRole.assistant);
     }).toList();
 
-    Stream<OpenAIStreamChatCompletionModel> chatStream = OpenAI.instance.chat
+    chatStream = OpenAI.instance.chat
         .createStream(model: "gpt-3.5-turbo", messages: contextList);
 
-    chatStream.listen((streamChatCompletion) {
+    chatStreamSubscription = chatStream.listen((streamChatCompletion) {
       final content = streamChatCompletion.choices.first.delta.content;
       // print(content);
       if (content != null) {
-        fullText = fullText + content;
-        _replyStreamController.add(fullText);
+        if (isStreaming == true) {
+          fullText = fullText + content;
+          _replyStreamController.add(fullText);
 
-        //Auto Scroll Logics
+          //Auto Scroll Logics
 
-        if (fullText.length < scrollText) {
-          scrollToBottom();
-        }
-        if (fullText.length > scrollText &&
-            scrollController.hasClients &&
-            doScroll == true &&
-            scrollController.position.pixels ==
-                scrollController.position.maxScrollExtent) {
-          print('User Scrolls in End Position');
-          scrollText += fullText.length;
-          doScroll = false;
+          if (fullText.length < scrollText) {
+            scrollToBottom();
+          }
+          if (fullText.length > scrollText &&
+              scrollController.hasClients &&
+              doScroll == true &&
+              scrollController.position.pixels ==
+                  scrollController.position.maxScrollExtent) {
+            print('User Scrolls in End Position');
+            scrollText += fullText.length;
+            doScroll = false;
+          }
+        } else {
+          print('Stream is Cancelled');
+          setState(() {
+            myChat.chatMessageList.last =
+                ChatMessage(msg: fullText, senderIndex: 1);
+          });
+
+          chatStreamSubscription.cancel();
         }
       }
-    }).onDone(() {
+    }, onDone: () {
       print('Stream is Done');
       setState(() {
         myChat.chatMessageList.last =

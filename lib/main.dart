@@ -7,6 +7,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/screens/start_screen.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
+import 'package:smart_gpt_ai/testings/stream_practice.dart';
 import 'docs/firebase_options.dart';
 import 'hive-test/chat_adapter.dart';
 import 'hive-test/chat_model.dart';
@@ -52,17 +53,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
-        // home: MyHomePage(
-        // home: SplashScreen()
-        home: StartScreen(
-          pageIndex: 0,
-        )
-        // home: HiveTestScreen(),
-
-        // ),
-        );
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+          useMaterial3: true, scaffoldBackgroundColor: ColorPallate.bgColor),
+      // home: MyHomePage(
+      // home: SplashScreen()
+      home: StartScreen(
+        pageIndex: 0,
+      ),
+      // home: StreamPracticeScreen(),
+    );
   }
 }

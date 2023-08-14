@@ -97,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           //Send Message Input Section
           PromptInputWidget(
+            isStreaming: false,
             controller: controller,
             onPressedSendButton: () {
               Chat chat = Chat(chatMessageList: [

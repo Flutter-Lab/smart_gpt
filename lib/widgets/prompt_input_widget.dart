@@ -5,11 +5,13 @@ import '../constants/constants.dart';
 class PromptInputWidget extends StatefulWidget {
   final VoidCallback onPressedSendButton;
   final VoidCallback onPressedCameraButton;
+  bool isStreaming;
   PromptInputWidget({
     super.key,
     required this.controller,
     required this.onPressedSendButton,
     required this.onPressedCameraButton,
+    required this.isStreaming,
   });
 
   final TextEditingController controller;
@@ -65,11 +67,21 @@ class _PromptInputWidgetState extends State<PromptInputWidget> {
               ),
             ),
           ),
-          IconButton(
-            onPressed: hasData == true ? widget.onPressedSendButton : null,
-            icon: Icon(
-              Icons.send,
-              color: Colors.green,
+          Container(
+            margin: EdgeInsets.only(left: 8),
+            padding: EdgeInsets.all(4),
+            decoration: BoxDecoration(
+                color: Colors.greenAccent,
+                borderRadius: BorderRadius.circular(16)),
+            child: IconButton(
+              onPressed: hasData == true || widget.isStreaming
+                  ? widget.onPressedSendButton
+                  : null,
+              icon: Icon(
+                widget.isStreaming ? Icons.stop : Icons.send,
+                color: widget.isStreaming ? Colors.blueAccent : Colors.white,
+                size: 30,
+              ),
             ),
           ),
         ],
