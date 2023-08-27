@@ -2,8 +2,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:smart_gpt_ai/widgets/home_screen_top_section.dart';
 import 'package:smart_gpt_ai/widgets/task_card_full_width_widget_list.dart';
+import '../Admob/ad_helpter_test.dart';
 import '../constants/constants.dart';
 import '../testings/hive-test/chat_model.dart';
 import '../services/image_to_text_service.dart';
@@ -13,6 +15,7 @@ import '../widgets/task_card_ocr_summary_widget.dart';
 import '../widgets/task_card_widget_half_width.dart';
 import '../widgets/text_widget.dart';
 import 'chat_screen.dart';
+import 'settings_screen/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,7 +27,75 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController controller = TextEditingController();
 
+  BannerAd? _bannerAd;
+
   bool imageProcessing = false;
+
+  // TODO: Add _rewardedAd
+  RewardedAd? _rewardedAd;
+
+  // TODO: Implement _loadRewardedAd()
+  void _loadRewardedAd() {
+    RewardedAd.load(
+      adUnitId: AdHelper.rewardedAdUnitId,
+      request: AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              setState(() {
+                ad.dispose();
+                _rewardedAd = null;
+              });
+              _loadRewardedAd();
+            },
+          );
+
+          setState(() {
+            _rewardedAd = ad;
+          });
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load a rewarded ad: ${err.message}');
+        },
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // TODO: Load a banner ad
+
+    // COMPLETE: Load a Rewarded Ad
+    _loadRewardedAd();
+
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
+  }
+
+  @override
+  void dispose() {
+    // TODO: Dispose a BannerAd object
+    _bannerAd?.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +103,53 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: ColorPallate.cardColor,
-        title: Center(child: TextWidget(label: 'Smart GPT', fontSize: 20)),
+        title: Stack(
+          children: [
+            Center(
+              child: TextWidget(label: 'SmartGPT', fontSize: 20),
+            ),
+            Positioned(
+                left: 0,
+                child: GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                        isScrollControlled: true,
+                        context: context,
+                        builder: (context) => SettingsScreen());
+                  },
+                  child: Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                  ),
+                ))
+          ],
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          //Reward Ad Button
+          ElevatedButton(
+              onPressed: () {
+                _rewardedAd?.show(
+                  onUserEarnedReward: (_, reward) {
+                    // QuizManager.instance.useHint();
+                  },
+                );
+              },
+              child: Text('Show Ad')),
+
+          // TODO: Display a banner when ready
+          if (_bannerAd != null)
+            Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            ),
+
           Flexible(
             child: Padding(
               padding: const EdgeInsets.all(8.0),

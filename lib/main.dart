@@ -4,10 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_gpt_ai/screens/start_screen.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
-import 'package:smart_gpt_ai/testings/stream_practice.dart';
 import 'docs/firebase_options.dart';
 import 'testings/hive-test/chat_adapter.dart';
 import 'testings/hive-test/chat_model.dart';
@@ -17,6 +17,8 @@ import 'package:firedart/firedart.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  await _initGoogleMobileAds();
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
@@ -52,6 +54,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -71,4 +74,9 @@ class MyApp extends StatelessWidget {
       // home: StreamPracticeScreen(),
     );
   }
+}
+
+Future<InitializationStatus> _initGoogleMobileAds() {
+  // TODO: Initialize Google Mobile Ads SDK
+  return MobileAds.instance.initialize();
 }

@@ -1,7 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:smart_gpt_ai/services/translate.dart';
 
 import '../constants/constants.dart';
 
@@ -25,8 +25,12 @@ class MessageCardWidget extends StatefulWidget {
 }
 
 class _MessageCardWidgetState extends State<MessageCardWidget> {
+  late String msgTxt;
+  String? transMsg;
+
   @override
   Widget build(BuildContext context) {
+    msgTxt = widget.msg;
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
@@ -97,19 +101,38 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
                                       ? StreamBuilder<String>(
                                           stream: widget.stream,
                                           builder: (context, snapshot) {
-                                            print('Stream OK');
+                                            // print('Stream OK');
                                             return SelectableText(
                                               snapshot.data != null
                                                   ? snapshot.data!
-                                                  : 'Typing...',
+                                                  : 'Thinking...',
                                             );
                                           })
                                       : SelectableText(
-                                          widget.msg,
+                                          transMsg != null ? transMsg! : msgTxt,
                                         ),
                                 ],
                               ),
                             ),
+                      if (widget.chatIndex == 1)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                transMsg = await Translate.translate(msgTxt);
+                                setState(() {});
+                                // setState(() {
+                                //   msgTxt = trnsMsg;
+                                // });
+                              },
+                              child: Icon(
+                                Icons.translate,
+                                color: Colors.green,
+                              ),
+                            )
+                          ],
+                        ),
                     ],
                   ),
                 ),
@@ -121,26 +144,25 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
     );
   }
 
-  InkWell CopyIconWidget({required BuildContext context, required String msg}) {
-    return InkWell(
-      onTap: () {
-        print(msg);
+  // InkWell CopyIconWidget({required BuildContext context, required String msg}) {
+  //   return InkWell(
+  //     onTap: () {
+  //       print(msg);
 
-        Clipboard.setData(ClipboardData(text: msg));
-        // Show a snackbar or any other feedback to the user indicating successful copy.
+  //       Clipboard.setData(ClipboardData(text: msg));
+  //       // Show a snackbar or any other feedback to the user indicating successful copy.
 
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Copied to clipboard')));
-      },
-      child: Container(
-        alignment: Alignment.topRight,
-        padding: EdgeInsets.all(4),
-        child: Icon(
-          Icons.copy,
-          color: Colors.white,
-          size: 15,
-        ),
-      ),
-    );
-  }
+  //       ScaffoldMessenger.of(context)
+  //           .showSnackBar(SnackBar(content: Text('Copied to clipboard')));
+  //     },
+  //     child: Container(
+  //       alignment: Alignment.topRight,
+  //       child: Icon(
+  //         Icons.copy,
+  //         color: Colors.white,
+  //         size: 15,
+  //       ),
+  //     ),
+  //   );
+  // }
 }

@@ -91,7 +91,10 @@ class _ChatScreenState extends State<ChatScreen> {
     print('is Streaming : $isStreaming');
 
     if (widget.gobackPageIndex < 2 && count == 0) {
+      increaseTotalSent();
+
       replyFunction();
+
       count++;
     }
 
@@ -217,7 +220,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       imageProcessing = false;
                                     });
                                     if (question != null) {
-                                      limitCheckAndSend();
+                                      await limitCheckAndSend();
                                     }
                                   }
                                 }),
@@ -270,7 +273,7 @@ class _ChatScreenState extends State<ChatScreen> {
     myChat.chatMessageList.add(chatMessage);
 
     //If freeLimit cross and User is not Premium Then Go to Subscription Screen
-    limitCheckAndSend();
+    await limitCheckAndSend();
   }
 
   Stack appBarTitleWidget(BuildContext context) {
@@ -343,7 +346,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void scrollToBottom() {
     if (scrollController.hasClients) {
-      print('Scrolling to Bottom');
+      // print('Scrolling to Bottom');
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollController.animateTo(
@@ -355,7 +358,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void replyFunction() async {
+  Future<void> replyFunction() async {
     setState(() {
       isStreaming = true;
     });
@@ -369,20 +372,25 @@ class _ChatScreenState extends State<ChatScreen> {
     scrollToBottom();
   }
 
-  void limitCheckAndSend() {
+  Future<void> limitCheckAndSend() async {
+    print('Limit Check Called');
     if (totalSent > freeChatLimit && !isPremium) {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => SubscriptionScreen()));
     } else {
       inputTextcontroller.clear();
-      setState(() {});
-      replyFunction();
-      sharedPreferencesUtil.saveInt('totalSent', totalSent + 1);
-      setState(() {
-        totalSent = sharedPreferencesUtil.getInt('totalSent');
-      });
-      print('Total Sent: $totalSent');
+      increaseTotalSent();
+      // setState(() {});
+      await replyFunction();
     }
+  }
+
+  void increaseTotalSent() {
+    print('Saving New Total Sent');
+    sharedPreferencesUtil.saveInt('totalSent', totalSent + 1);
+    print('Saved Total Sent');
+    totalSent = sharedPreferencesUtil.getInt('totalSent');
+    print('Total Sent New: $totalSent');
   }
 
   late Stream<OpenAIStreamChatCompletionModel> chatStream;

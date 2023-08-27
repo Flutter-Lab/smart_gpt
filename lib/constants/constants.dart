@@ -15,3 +15,6 @@ class ColorPallate {
 }
 
 const freeChatLimit = 20;
+
+const String story =
+    "The Big Bang theory explains how the universe started from a hot and dense state around 13.8 billion years ago and has been expanding ever since. Proposed by Georges Lemaître in 1927, it gained acceptance in the 1960s with the discovery of cosmic microwave background radiation. The theory suggests that all matter and energy were compressed into a singularity before a major explosion occurred, leading to the expansion of space and the formation of matter and energy. This expansion eventually gave rise to the formation of atoms, stars, and galaxies.";
