@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:smart_gpt_ai/widgets/home_screen_top_section.dart';
 import 'package:smart_gpt_ai/widgets/task_card_full_width_widget_list.dart';
-import '../Admob/ad_helpter_test.dart';
+import '../admob/ad_helpter_test.dart';
 import '../constants/constants.dart';
 import '../testings/hive-test/chat_model.dart';
 import '../services/image_to_text_service.dart';
+import '../utilities/shared_prefs.dart';
 import '../widgets/image_scanning_animation_widget.dart';
 import '../widgets/prompt_input_widget.dart';
 import '../widgets/task_card_ocr_summary_widget.dart';
@@ -30,6 +31,10 @@ class _HomeScreenState extends State<HomeScreen> {
   BannerAd? _bannerAd;
 
   bool imageProcessing = false;
+
+  final sharedPreferencesUtil = SharedPreferencesUtil();
+
+  late bool adUser;
 
   // TODO: Add _rewardedAd
   RewardedAd? _rewardedAd;
@@ -87,6 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     ).load();
+
+    adUser = sharedPreferencesUtil.getBool('adUser');
   }
 
   @override
@@ -129,18 +136,18 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           //Reward Ad Button
-          ElevatedButton(
-              onPressed: () {
-                _rewardedAd?.show(
-                  onUserEarnedReward: (_, reward) {
-                    // QuizManager.instance.useHint();
-                  },
-                );
-              },
-              child: Text('Show Ad')),
+          // ElevatedButton(
+          //     onPressed: () {
+          //       _rewardedAd?.show(
+          //         onUserEarnedReward: (_, reward) {
+          //           // QuizManager.instance.useHint();
+          //         },
+          //       );
+          //     },
+          //     child: Text('Show Ad')),
 
           // TODO: Display a banner when ready
-          if (_bannerAd != null)
+          if (_bannerAd != null && adUser == true)
             Align(
               alignment: Alignment.topCenter,
               child: Container(

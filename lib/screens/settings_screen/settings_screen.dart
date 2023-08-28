@@ -17,12 +17,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final sharedPreferencesUtil = SharedPreferencesUtil();
 
   late int totalSent;
+  late bool isPremium;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     totalSent = sharedPreferencesUtil.getInt('totalSent');
+    isPremium = sharedPreferencesUtil.getBool('isPremium');
   }
 
   @override
@@ -58,7 +60,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     TextWidget(
                         label: 'Chat Points', fontWeight: FontWeight.normal),
                     TextWidget(
-                        label: '$chatPoints', fontWeight: FontWeight.normal),
+                        label: isPremium ? 'Unlimited' : '$chatPoints',
+                        fontWeight: FontWeight.normal),
                   ],
                 ),
               ),

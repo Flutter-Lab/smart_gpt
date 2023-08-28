@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:glassfy_flutter/glassfy_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_gpt_ai/constants/constants.dart';
 import 'package:smart_gpt_ai/docs/terms_and_condition.dart';
 import 'package:smart_gpt_ai/screens/start_screen.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
@@ -23,14 +24,31 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(color: ColorPallate.bgColor),
         child: Padding(
           padding: EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => StartScreen(pageIndex: 0))),
+                    child: Icon(
+                      Icons.cancel,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+
               TextWidget(
                 label: 'Get Pro Access',
                 fontSize: 30,
@@ -187,8 +205,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('isPremium', true);
 
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => StartScreen(pageIndex: 0)));
+        prefs.setBool('adUser', false);
+
+        Navigator.pop(context);
       }
     } else {
       print('No Transaction Found');
@@ -205,11 +224,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         if (p.isValid) {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setBool('isPremium', true);
+          prefs.setBool('adUser', false);
 
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => StartScreen(pageIndex: 0)));
+          Navigator.pop(context);
         }
       }
     } catch (error) {

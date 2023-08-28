@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
-
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:smart_gpt_ai/constants/api_consts.dart';
@@ -12,6 +12,8 @@ import 'package:smart_gpt_ai/data/response_helper.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
 import 'package:smart_gpt_ai/services/api_service.dart';
 import 'package:smart_gpt_ai/widgets/image_scanning_animation_widget.dart';
+import 'package:smart_gpt_ai/widgets/sub_or_ad_show_alert_widget.dart';
+import '../Admob/ad_helpter_test.dart';
 import '../constants/constants.dart';
 import '../testings/hive-test/chat_model.dart';
 import '../services/image_to_text_service.dart';
@@ -20,7 +22,6 @@ import '../widgets/chat_card_widget.dart';
 import '../widgets/prompt_input_widget.dart';
 import '../widgets/text_widget.dart';
 import 'start_screen.dart';
-import 'subscription_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   List<Map<String, dynamic>>? conversation;
@@ -47,6 +48,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool imageProcessing = false;
 
+  int count = 0;
+
   late int totalSent;
   late bool isPremium;
 
@@ -57,6 +60,19 @@ class _ChatScreenState extends State<ChatScreen> {
   int scrollText = 250;
   bool doScroll = false;
 
+  bool alertShown = false;
+
+  RewardedAd? _rewardedAd;
+
+  Future<void> showSubOrAdAlert() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await showModalBottomSheet(
+          isScrollControlled: true,
+          context: context,
+          builder: (context) => SubOrAdAlertWidget());
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +80,8 @@ class _ChatScreenState extends State<ChatScreen> {
       // scrollController = ScrollController();
 
       scrollToBottom();
+
+      _loadRewardedAd();
     });
     totalSent = sharedPreferencesUtil.getInt('totalSent');
     isPremium = sharedPreferencesUtil.getBool('isPremium');
@@ -84,153 +102,182 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  int count = 0;
-
   @override
   Widget build(BuildContext context) {
-    print('is Streaming : $isStreaming');
-
-    if (widget.gobackPageIndex < 2 && count == 0) {
-      increaseTotalSent();
-
-      replyFunction();
-
-      count++;
-    }
-
     print('Total Sent: $totalSent');
 
     if (totalSent < freeChatLimit - 1 || isPremium) {
-      return Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            title: appBarTitleWidget(context),
-            backgroundColor: ColorPallate.cardColor,
-          ),
-          body: FutureBuilder<bool>(
-              future: PurchaseApi.isUserPremium(),
-              builder: (context, snapshot) {
-                return !snapshot.hasData
-                    ? Center(
-                        child: const SpinKitThreeBounce(
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      )
-                    : SafeArea(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            NotificationListener<ScrollNotification>(
-                              //Hide keyboard on Scroll
-                              onNotification: (scrollNotification) {
-                                if (scrollNotification
-                                        is ScrollUpdateNotification &&
-                                    scrollNotification.metrics.axis ==
-                                        Axis.vertical &&
-                                    scrollNotification.dragDetails != null) {
-                                  // Hide the keyboard when scrolling starts
-                                  FocusScope.of(context).unfocus();
-                                }
+      print('is Streaming : $isStreaming');
 
-                                return false;
-                              },
-                              child: Flexible(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Stack(
-                                    children: [
-                                      ListView.builder(
-                                        shrinkWrap: true,
-                                        controller: scrollController,
-                                        itemCount:
-                                            myChat.chatMessageList.length,
-                                        itemBuilder: (context, index) {
-                                          String msg =
-                                              myChat.chatMessageList[index].msg;
-                                          int chatIndex = myChat
-                                              .chatMessageList[index]
-                                              .senderIndex;
+      if (widget.gobackPageIndex < 2 && count == 0) {
+        increaseTotalSent();
 
-                                          return GestureDetector(
-                                            onTap: () {
-                                              // When tapped outside of the keyboard, unfocus the current focus node.
-                                              final currentFocus =
-                                                  FocusScope.of(context);
-                                              if (!currentFocus
-                                                  .hasPrimaryFocus) {
-                                                currentFocus.unfocus();
-                                              }
-                                            },
-                                            child: isStreaming &&
-                                                    myChat.chatMessageList
-                                                            .length ==
-                                                        index + 1
-                                                ? MessageCardWidget(
-                                                    convLength: myChat
-                                                        .chatMessageList.length,
-                                                    currentMsgIndex: index,
-                                                    stream:
-                                                        _replyStreamController
-                                                            .stream,
-                                                    chatIndex: chatIndex,
-                                                    msg: msg)
-                                                : MessageCardWidget(
-                                                    chatIndex: chatIndex,
-                                                    msg: msg,
-                                                    convLength: myChat
-                                                        .chatMessageList.length,
-                                                    currentMsgIndex: index),
-                                          );
-                                        },
-                                      ),
-                                      if (imageProcessing == true)
-                                        ImageScanAnimationWidget(),
-                                    ],
-                                  ),
+        replyFunction();
+
+        count++;
+      }
+    } else {
+      if (alertShown == false) {
+        showSubOrAdAlert();
+        sharedPreferencesUtil.saveBool('adUser', true);
+        print('showSubOrAdAlert : firest');
+        setState(() {
+          alertShown = true;
+        });
+      }
+    }
+
+    return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: appBarTitleWidget(context),
+          backgroundColor: ColorPallate.cardColor,
+        ),
+        body: FutureBuilder<bool>(
+            future: PurchaseApi.isUserPremium(),
+            builder: (context, snapshot) {
+              return !snapshot.hasData
+                  ? Center(
+                      child: const SpinKitThreeBounce(
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    )
+                  : SafeArea(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          NotificationListener<ScrollNotification>(
+                            //Hide keyboard on Scroll
+                            onNotification: (scrollNotification) {
+                              if (scrollNotification
+                                      is ScrollUpdateNotification &&
+                                  scrollNotification.metrics.axis ==
+                                      Axis.vertical &&
+                                  scrollNotification.dragDetails != null) {
+                                // Hide the keyboard when scrolling starts
+                                FocusScope.of(context).unfocus();
+                              }
+
+                              return false;
+                            },
+                            child: Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Stack(
+                                  children: [
+                                    ListView.builder(
+                                      shrinkWrap: true,
+                                      controller: scrollController,
+                                      itemCount: myChat.chatMessageList.length,
+                                      itemBuilder: (context, index) {
+                                        String msg =
+                                            myChat.chatMessageList[index].msg;
+                                        int chatIndex = myChat
+                                            .chatMessageList[index].senderIndex;
+
+                                        return GestureDetector(
+                                          onTap: () {
+                                            // When tapped outside of the keyboard, unfocus the current focus node.
+                                            final currentFocus =
+                                                FocusScope.of(context);
+                                            if (!currentFocus.hasPrimaryFocus) {
+                                              currentFocus.unfocus();
+                                            }
+                                          },
+                                          child: isStreaming &&
+                                                  myChat.chatMessageList
+                                                          .length ==
+                                                      index + 1
+                                              ? MessageCardWidget(
+                                                  convLength: myChat
+                                                      .chatMessageList.length,
+                                                  currentMsgIndex: index,
+                                                  stream: _replyStreamController
+                                                      .stream,
+                                                  chatIndex: chatIndex,
+                                                  msg: msg)
+                                              : MessageCardWidget(
+                                                  chatIndex: chatIndex,
+                                                  msg: msg,
+                                                  convLength: myChat
+                                                      .chatMessageList.length,
+                                                  currentMsgIndex: index),
+                                        );
+                                      },
+                                    ),
+                                    if (imageProcessing == true)
+                                      ImageScanAnimationWidget(),
+                                  ],
                                 ),
                               ),
                             ),
-                            if (!isStreaming) reponseHelperWidget(),
-                            PromptInputWidget(
-                                isStreaming: isStreaming,
-                                controller: inputTextcontroller,
-                                onPressedSendButton: () {
-                                  if (isStreaming) {
-                                    setState(() {
-                                      isStreaming = false;
-                                    });
-                                  } else {
-                                    sendMessage(msg: inputTextcontroller.text);
-                                  }
-                                },
-                                onPressedCameraButton: () async {
-                                  int? selectedImgSrc =
-                                      await ImageToTextService.getImageSrc(
-                                          context);
-                                  if (selectedImgSrc != null) {
-                                    setState(() {
-                                      imageProcessing = true;
-                                    });
+                          ),
+                          if (!isStreaming) reponseHelperWidget(),
+                          PromptInputWidget(
+                              isStreaming: isStreaming,
+                              controller: inputTextcontroller,
+                              onPressedSendButton: () {
+                                if (isStreaming) {
+                                  setState(() {
+                                    isStreaming = false;
+                                  });
+                                } else {
+                                  sendMessage(msg: inputTextcontroller.text);
+                                }
+                              },
+                              onPressedCameraButton: () async {
+                                int? selectedImgSrc =
+                                    await ImageToTextService.getImageSrc(
+                                        context);
+                                if (selectedImgSrc != null) {
+                                  setState(() {
+                                    imageProcessing = true;
+                                  });
 
-                                    String? question = await ImageToTextService
-                                        .getTextFromImage(selectedImgSrc);
+                                  String? question =
+                                      await ImageToTextService.getTextFromImage(
+                                          selectedImgSrc);
 
-                                    setState(() {
-                                      imageProcessing = false;
-                                    });
-                                    if (question != null) {
-                                      await limitCheckAndSend();
-                                    }
+                                  setState(() {
+                                    imageProcessing = false;
+                                  });
+                                  if (question != null) {
+                                    await limitCheckAndSend();
                                   }
-                                }),
-                          ],
-                        ),
-                      );
-              }));
-    } else {
-      return SubscriptionScreen();
-    }
+                                }
+                              }),
+                        ],
+                      ),
+                    );
+            }));
+  }
+
+  void _loadRewardedAd() {
+    RewardedAd.load(
+      adUnitId: AdHelper.rewardedAdUnitId,
+      request: AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              setState(() {
+                ad.dispose();
+                _rewardedAd = null;
+              });
+              _loadRewardedAd();
+            },
+          );
+
+          setState(() {
+            _rewardedAd = ad;
+          });
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load a rewarded ad: ${err.message}');
+        },
+      ),
+    );
   }
 
   Container reponseHelperWidget() {
@@ -375,8 +422,10 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> limitCheckAndSend() async {
     print('Limit Check Called');
     if (totalSent > freeChatLimit && !isPremium) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => SubscriptionScreen()));
+      // await showSubscriptionScreen();
+      await showSubOrAdAlert();
+      // Navigator.push(context,
+      //     MaterialPageRoute(builder: (context) => SubscriptionScreen()));
     } else {
       inputTextcontroller.clear();
       increaseTotalSent();
@@ -386,10 +435,13 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void increaseTotalSent() {
-    print('Saving New Total Sent');
-    sharedPreferencesUtil.saveInt('totalSent', totalSent + 1);
-    print('Saved Total Sent');
-    totalSent = sharedPreferencesUtil.getInt('totalSent');
+    if (totalSent < freeChatLimit) {
+      print('Saving New Total Sent');
+      sharedPreferencesUtil.saveInt('totalSent', totalSent + 1);
+      print('Saved Total Sent');
+      totalSent = sharedPreferencesUtil.getInt('totalSent');
+    }
+
     print('Total Sent New: $totalSent');
   }
 
@@ -468,5 +520,32 @@ class _ChatScreenState extends State<ChatScreen> {
     // botReply = fullText;
     print('Full Text: $fullText');
     return fullText;
+  }
+}
+
+class SimpleButton extends StatelessWidget {
+  final String btnText;
+  final Color txtColor;
+  const SimpleButton({
+    required this.btnText,
+    required this.txtColor,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      width: double.maxFinite,
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.all(4),
+      decoration: BoxDecoration(
+          color: ColorPallate.cardColor,
+          borderRadius: BorderRadius.circular(16)),
+      child: TextWidget(
+        label: btnText,
+        color: txtColor,
+      ),
+    );
   }
 }

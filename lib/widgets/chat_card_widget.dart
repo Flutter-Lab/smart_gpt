@@ -32,7 +32,9 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
   Widget build(BuildContext context) {
     msgTxt = widget.msg;
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: widget.chatIndex == 1
+          ? MainAxisAlignment.start
+          : MainAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(
@@ -114,25 +116,25 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
                                 ],
                               ),
                             ),
-                      if (widget.chatIndex == 1)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                transMsg = await Translate.translate(msgTxt);
-                                setState(() {});
-                                // setState(() {
-                                //   msgTxt = trnsMsg;
-                                // });
-                              },
-                              child: Icon(
-                                Icons.translate,
-                                color: Colors.green,
-                              ),
-                            )
-                          ],
-                        ),
+                      // if (widget.chatIndex == 1)
+                      //   Row(
+                      //     mainAxisAlignment: MainAxisAlignment.end,
+                      //     children: [
+                      //       GestureDetector(
+                      //         onTap: () async {
+                      //           transMsg = await Translate.translate(msgTxt);
+                      //           setState(() {});
+                      //           // setState(() {
+                      //           //   msgTxt = trnsMsg;
+                      //           // });
+                      //         },
+                      //         child: Icon(
+                      //           Icons.translate,
+                      //           color: Colors.green,
+                      //         ),
+                      //       )
+                      //     ],
+                      //   ),
                     ],
                   ),
                 ),
