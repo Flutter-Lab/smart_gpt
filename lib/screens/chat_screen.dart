@@ -310,7 +310,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void sendMessage({required String msg}) async {
-    scrollToBottom();
+    setState(() {
+      isPremium = sharedPreferencesUtil.getBool('isPremium');
+    });
+
     print('Total Sent: $totalSent');
     print(('Premium Status: $isPremium'));
 
@@ -496,11 +499,16 @@ class _ChatScreenState extends State<ChatScreen> {
             doScroll = false;
           }
         } else {
-          print('Stream is Cancelled');
-          setState(() {
-            myChat.chatMessageList.last =
-                ChatMessage(msg: fullText, senderIndex: 1);
-          });
+          if (fullText.isEmpty) {
+            print('Last message is empty. Removing it');
+            myChat.chatMessageList.removeLast();
+          } else {
+            setState(() {
+              print('Stream is Cancelled');
+              myChat.chatMessageList.last =
+                  ChatMessage(msg: fullText, senderIndex: 1);
+            });
+          }
 
           chatStreamSubscription.cancel();
         }
@@ -508,9 +516,12 @@ class _ChatScreenState extends State<ChatScreen> {
     }, onDone: () {
       print('Stream is Done');
       setState(() {
-        myChat.chatMessageList.last =
-            ChatMessage(msg: fullText, senderIndex: 1);
-
+        if (fullText.isNotEmpty) {
+          myChat.chatMessageList.last =
+              ChatMessage(msg: fullText, senderIndex: 1);
+        } else {
+          myChat.chatMessageList.removeLast();
+        }
         isStreaming = false;
       });
     });

@@ -1,9 +1,13 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:smart_gpt_ai/services/translate.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_gpt_ai/widgets/text_widget.dart';
+import 'package:smart_gpt_ai/widgets/translate_language_dialog.dart';
 
 import '../constants/constants.dart';
+import '../services/translate.dart';
 
 class MessageCardWidget extends StatefulWidget {
   MessageCardWidget(
@@ -28,6 +32,10 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
   late String msgTxt;
   String? transMsg;
 
+  String? transLanguage;
+
+  bool transLoading = false;
+
   @override
   Widget build(BuildContext context) {
     msgTxt = widget.msg;
@@ -45,6 +53,12 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
               left: widget.chatIndex == 0 ? 24 : 4,
               right: widget.chatIndex == 0 ? 4 : 24,
             ),
+            padding: EdgeInsets.only(
+              top: 16,
+              left: 16,
+              right: 16,
+              bottom: widget.chatIndex == 1 ? 8 : 16,
+            ),
             decoration: BoxDecoration(
               color: widget.chatIndex == 0
                   ? const Color.fromARGB(255, 28, 196, 103)
@@ -56,20 +70,12 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
                 bottomRight: Radius.circular(widget.chatIndex == 0 ? 0 : 12),
               ),
             ),
-            // padding: EdgeInsets.only(
-            //   top: chatIndex == 0 ? 8 : 8,
-            //   left: 8,
-            //   bottom: chatIndex == 0 ? 8 : 16,
-            //   right: 8,
-            // ),
-            padding: EdgeInsets.all(16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
                   child: Column(
-                    // crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       widget.chatIndex == 0
                           ? DefaultTextStyle(
@@ -116,25 +122,54 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
                                 ],
                               ),
                             ),
-                      // if (widget.chatIndex == 1)
-                      //   Row(
-                      //     mainAxisAlignment: MainAxisAlignment.end,
-                      //     children: [
-                      //       GestureDetector(
-                      //         onTap: () async {
-                      //           transMsg = await Translate.translate(msgTxt);
-                      //           setState(() {});
-                      //           // setState(() {
-                      //           //   msgTxt = trnsMsg;
-                      //           // });
-                      //         },
-                      //         child: Icon(
-                      //           Icons.translate,
-                      //           color: Colors.green,
-                      //         ),
-                      //       )
-                      //     ],
-                      //   ),
+                      if (widget.chatIndex == 1 && widget.stream == null)
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                  margin: EdgeInsets.only(top: 8),
+                                  height: 28,
+                                  child: ListView(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      children: [
+                                        if (transLoading)
+                                          Center(
+                                            child: Container(
+                                              height: 16,
+                                              width: 16,
+                                              child: CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                  strokeWidth: 2),
+                                            ),
+                                          ),
+                                        ChatCardHelper(
+                                          icon: Icons.translate,
+                                          label: 'Translate',
+                                          onLongPress: () async {
+                                            if (msgTxt.isNotEmpty) {
+                                              await transProcess();
+                                            }
+                                          },
+                                          ontap: onTapTranslate,
+                                        ),
+                                        ChatCardHelper(
+                                            label: 'Copy',
+                                            icon: Icons.copy,
+                                            ontap: () {
+                                              Clipboard.setData(ClipboardData(
+                                                text: transMsg != null
+                                                    ? transMsg!
+                                                    : msgTxt,
+                                              ));
+                                              // Show a snackbar or any other feedback to the user indicating successful copy.
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          'Copied to clipboard')));
+                                            })
+                                      ]))
+                            ]),
                     ],
                   ),
                 ),
@@ -146,25 +181,91 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
     );
   }
 
-  // InkWell CopyIconWidget({required BuildContext context, required String msg}) {
-  //   return InkWell(
-  //     onTap: () {
-  //       print(msg);
+  void onTapTranslate() async {
+    if (msgTxt.isNotEmpty) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      transLanguage = await prefs.getString('transLanguage') ?? null;
+      print(transLanguage);
 
-  //       Clipboard.setData(ClipboardData(text: msg));
-  //       // Show a snackbar or any other feedback to the user indicating successful copy.
+      if (transLanguage == null) {
+        await transProcess();
+      } else {
+        setState(() {
+          transLoading = true;
+        });
+        transMsg = await Translate.translate(
+            text: msgTxt, languageCode: transLanguage!);
 
-  //       ScaffoldMessenger.of(context)
-  //           .showSnackBar(SnackBar(content: Text('Copied to clipboard')));
-  //     },
-  //     child: Container(
-  //       alignment: Alignment.topRight,
-  //       child: Icon(
-  //         Icons.copy,
-  //         color: Colors.white,
-  //         size: 15,
-  //       ),
-  //     ),
-  //   );
-  // }
+        setState(() {
+          transLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> transProcess() async {
+    setState(() {
+      transLoading = true;
+    });
+    await TransLangDialog(context);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    transLanguage = await prefs.getString('transLanguage') ?? null;
+
+    print('New TransLang : $transLanguage');
+
+    if (transLanguage != null) {
+      String transMsgT =
+          await Translate.translate(text: msgTxt, languageCode: transLanguage!);
+
+      setState(() {
+        transMsg = transMsgT;
+      });
+      print(transMsgT);
+    }
+    setState(() {
+      transLoading = false;
+    });
+  }
+
+  Widget ChatCardHelper({
+    required String label,
+    required IconData icon,
+    required VoidCallback ontap,
+    VoidCallback? onLongPress,
+  }) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 2),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: ColorPallate.cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: ontap,
+            onLongPress: onLongPress ?? () {},
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  color: Colors.white,
+                  size: 14,
+                ),
+                SizedBox(width: 4),
+                TextWidget(
+                  label: label,
+                  fontWeight: FontWeight.normal,
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
 }

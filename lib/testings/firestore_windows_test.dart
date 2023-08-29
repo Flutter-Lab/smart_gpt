@@ -1,4 +1,3 @@
-import 'package:firedart/firedart.dart' as firedart;
 import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/services/api_service.dart';
 

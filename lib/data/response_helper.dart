@@ -1,5 +1,6 @@
 List<String> responseHelperList = [
   "Summarize, please",
+  "Elaborate, please",
   "Can you be more concise?",
   "Condense that",
   "Give me a brief version",

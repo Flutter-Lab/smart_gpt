@@ -15,3 +15,9 @@ class ColorPallate {
 }
 
 const freeChatLimit = 10;
+
+const List<Map<String, String>> transLanguageList = [
+  {'language': 'English', 'code': 'en'},
+  {'language': 'Bangla', 'code': 'bn'},
+  {'language': 'Hindi', 'code': 'hi'},
+];

@@ -66,10 +66,6 @@ class _SubOrAdAlertWidgetState extends State<SubOrAdAlertWidget> {
                     Navigator.pop(context);
                   },
                 );
-
-                // Navigator.pop(context);
-                // await SubscriptionService.showSubscriptionScreen(
-                //     context: context);
               },
             ),
           ],
