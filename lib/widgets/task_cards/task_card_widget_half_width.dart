@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/models/half_width_task_card_model.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
-import '../constants/constants.dart';
+import '../../constants/constants.dart';
 
 class TaskCardHalfWidth extends StatelessWidget {
   final HalfWidthTaskCardModel taskModel;

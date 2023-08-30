@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:smart_gpt_ai/constants/constants.dart';
-import 'package:smart_gpt_ai/widgets/task_card_half_width_widget_list.dart';
+import 'package:smart_gpt_ai/widgets/task_cards/task_card_half_width_widget_list.dart';
 import 'package:smart_gpt_ai/widgets/text_widget.dart';
 
 class SmartTaskScreen extends StatelessWidget {

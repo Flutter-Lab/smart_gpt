@@ -3,11 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_gpt_ai/widgets/text_widget.dart';
 import 'package:smart_gpt_ai/widgets/translate_language_dialog.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../constants/constants.dart';
 import '../services/translate.dart';
+import 'chat_card_action_button.dart';
 
 class MessageCardWidget extends StatefulWidget {
   MessageCardWidget(
@@ -85,7 +86,6 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
                                   fontWeight: FontWeight.normal),
                               child: Column(
                                 children: [
-                                  // CopyIconWidget(context: context, msg: msg),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
@@ -104,7 +104,6 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // CopyIconWidget(context: context, msg: msg),
                                   widget.stream != null
                                       ? StreamBuilder<String>(
                                           stream: widget.stream,
@@ -123,13 +122,17 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
                               ),
                             ),
                       if (widget.chatIndex == 1 && widget.stream == null)
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Container(
-                                  margin: EdgeInsets.only(top: 8),
-                                  height: 28,
-                                  child: ListView(
+                        Container(
+                          alignment: Alignment.centerRight,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.only(top: 8),
+                                    height: 28,
+                                    child: ListView(
                                       shrinkWrap: true,
                                       scrollDirection: Axis.horizontal,
                                       children: [
@@ -143,7 +146,7 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
                                                   strokeWidth: 2),
                                             ),
                                           ),
-                                        ChatCardHelper(
+                                        ChatCardActionButton(
                                           icon: Icons.translate,
                                           label: 'Translate',
                                           onLongPress: () async {
@@ -153,7 +156,7 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
                                           },
                                           ontap: onTapTranslate,
                                         ),
-                                        ChatCardHelper(
+                                        ChatCardActionButton(
                                             label: 'Copy',
                                             icon: Icons.copy,
                                             ontap: () {
@@ -162,14 +165,25 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
                                                     ? transMsg!
                                                     : msgTxt,
                                               ));
-                                              // Show a snackbar or any other feedback to the user indicating successful copy.
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(SnackBar(
                                                       content: Text(
                                                           'Copied to clipboard')));
+                                            }),
+                                        ChatCardActionButton(
+                                            label: 'Share',
+                                            icon: Icons.share,
+                                            ontap: () {
+                                              Share.share(transMsg != null
+                                                  ? transMsg!
+                                                  : msgTxt);
                                             })
-                                      ]))
-                            ]),
+                                      ],
+                                    ),
+                                  ),
+                                ]),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -225,47 +239,5 @@ class _MessageCardWidgetState extends State<MessageCardWidget> {
     setState(() {
       transLoading = false;
     });
-  }
-
-  Widget ChatCardHelper({
-    required String label,
-    required IconData icon,
-    required VoidCallback ontap,
-    VoidCallback? onLongPress,
-  }) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 2),
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: ColorPallate.cardColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          GestureDetector(
-            onTap: ontap,
-            onLongPress: onLongPress ?? () {},
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 14,
-                ),
-                SizedBox(width: 4),
-                TextWidget(
-                  label: label,
-                  fontWeight: FontWeight.normal,
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
   }
 }

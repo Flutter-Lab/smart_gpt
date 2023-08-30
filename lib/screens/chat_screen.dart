@@ -62,7 +62,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool alertShown = false;
 
-  RewardedAd? _rewardedAd;
+  // RewardedAd? _rewardedAd;
 
   Future<void> showSubOrAdAlert() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -81,7 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       scrollToBottom();
 
-      _loadRewardedAd();
+      // _loadRewardedAd();
     });
     totalSent = sharedPreferencesUtil.getInt('totalSent');
     isPremium = sharedPreferencesUtil.getBool('isPremium');
@@ -253,32 +253,32 @@ class _ChatScreenState extends State<ChatScreen> {
             }));
   }
 
-  void _loadRewardedAd() {
-    RewardedAd.load(
-      adUnitId: AdHelper.rewardedAdUnitId,
-      request: AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
-        onAdLoaded: (ad) {
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              setState(() {
-                ad.dispose();
-                _rewardedAd = null;
-              });
-              _loadRewardedAd();
-            },
-          );
+  // void _loadRewardedAd() {
+  //   RewardedAd.load(
+  //     adUnitId: AdHelper.rewardedAdUnitId,
+  //     request: AdRequest(),
+  //     rewardedAdLoadCallback: RewardedAdLoadCallback(
+  //       onAdLoaded: (ad) {
+  //         ad.fullScreenContentCallback = FullScreenContentCallback(
+  //           onAdDismissedFullScreenContent: (ad) {
+  //             setState(() {
+  //               ad.dispose();
+  //               _rewardedAd = null;
+  //             });
+  //             _loadRewardedAd();
+  //           },
+  //         );
 
-          setState(() {
-            _rewardedAd = ad;
-          });
-        },
-        onAdFailedToLoad: (err) {
-          print('Failed to load a rewarded ad: ${err.message}');
-        },
-      ),
-    );
-  }
+  //         setState(() {
+  //           _rewardedAd = ad;
+  //         });
+  //       },
+  //       onAdFailedToLoad: (err) {
+  //         print('Failed to load a rewarded ad: ${err.message}');
+  //       },
+  //     ),
+  //   );
+  // }
 
   Container reponseHelperWidget() {
     return Container(
