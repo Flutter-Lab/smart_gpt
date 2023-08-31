@@ -15,7 +15,7 @@ class ColorPallate {
 }
 
 const freeChatLimit = 10;
-const int addGapInMin = 2;
+const int addGapInMin = 5;
 
 const List<Map<String, String>> transLanguageList = [
   {'language': 'English', 'code': 'en'},

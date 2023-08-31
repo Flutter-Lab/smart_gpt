@@ -103,3 +103,5 @@ dependencies {
 
     // implementation 'com.google.firebase:firebase-analytics'
 }
+
+android.buildTypes.release.ndk.debugSymbolLevel = 'FULL'
