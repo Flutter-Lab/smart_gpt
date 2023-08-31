@@ -36,45 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late bool adUser;
 
-  // TODO: Add _rewardedAd
-  RewardedAd? _rewardedAd;
-
-  // TODO: Implement _loadRewardedAd()
-  void _loadRewardedAd() {
-    RewardedAd.load(
-      adUnitId: AdHelper.rewardedAdUnitId,
-      request: AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
-        onAdLoaded: (ad) {
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              setState(() {
-                ad.dispose();
-                _rewardedAd = null;
-              });
-              _loadRewardedAd();
-            },
-          );
-
-          setState(() {
-            _rewardedAd = ad;
-          });
-        },
-        onAdFailedToLoad: (err) {
-          print('Failed to load a rewarded ad: ${err.message}');
-        },
-      ),
-    );
-  }
-
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // TODO: Load a banner ad
-
-    // COMPLETE: Load a Rewarded Ad
-    _loadRewardedAd();
 
     BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
