@@ -57,15 +57,17 @@ class _SubOrAdAlertWidgetState extends State<SubOrAdAlertWidget> {
                 txtColor: Colors.amberAccent,
               ),
               onTap: () async {
-                _rewardedAd?.show(
-                  onUserEarnedReward: (_, reward) {
-                    sharedPreferencesUtil.saveInt(
-                        'totalSent', totalSent - reward.amount.toInt());
+                if (_rewardedAd != null) {
+                  _rewardedAd?.show(
+                    onUserEarnedReward: (_, reward) {
+                      sharedPreferencesUtil.saveInt(
+                          'totalSent', totalSent - reward.amount.toInt());
 
-                    // QuizManager.instance.useHint();
-                    Navigator.pop(context);
-                  },
-                );
+                      // QuizManager.instance.useHint();
+                    },
+                  );
+                }
+                Navigator.pop(context);
               },
             ),
           ],

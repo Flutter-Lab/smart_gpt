@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_gpt_ai/constants/api_consts.dart';
 import 'package:smart_gpt_ai/data/response_helper.dart';
 import 'package:smart_gpt_ai/glassfy_iap/purchase_api.dart';
@@ -62,7 +63,48 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool alertShown = false;
 
-  // RewardedAd? _rewardedAd;
+  Future<String> getCurrentTime() async {
+    DateTime currentTime = DateTime.now();
+    String formattedTime = currentTime.toIso8601String();
+    return formattedTime;
+  }
+
+  Future<void> setLastAdTimeToCurrentTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String curentTime = await getCurrentTime();
+
+    await prefs.setString('lastAdTime', curentTime);
+
+    print('New Last Ad Time is: $curentTime');
+  }
+
+  // TODO: Add _interstitialAd
+  InterstitialAd? _interstitialAd;
+
+  // TODO: Implement _loadInterstitialAd()
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              // _moveToHome();
+            },
+          );
+
+          setState(() {
+            _interstitialAd = ad;
+          });
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load an interstitial ad: ${err.message}');
+        },
+      ),
+    );
+  }
 
   Future<void> showSubOrAdAlert() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -82,6 +124,7 @@ class _ChatScreenState extends State<ChatScreen> {
       scrollToBottom();
 
       // _loadRewardedAd();
+      _loadInterstitialAd();
     });
     totalSent = sharedPreferencesUtil.getInt('totalSent');
     isPremium = sharedPreferencesUtil.getBool('isPremium');
@@ -105,11 +148,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     print('Total Sent: $totalSent');
+    bool isAdUser = sharedPreferencesUtil.getBool('adUser');
 
-    if (totalSent < freeChatLimit - 1 || isPremium) {
+    if (totalSent < freeChatLimit - 1 || isPremium || isAdUser) {
       print('is Streaming : $isStreaming');
 
       if (widget.gobackPageIndex < 2 && count == 0) {
+        print('Allow to Use');
         increaseTotalSent();
 
         replyFunction();
@@ -117,14 +162,8 @@ class _ChatScreenState extends State<ChatScreen> {
         count++;
       }
     } else {
-      if (alertShown == false) {
-        showSubOrAdAlert();
-        sharedPreferencesUtil.saveBool('adUser', true);
-        print('showSubOrAdAlert : firest');
-        setState(() {
-          alertShown = true;
-        });
-      }
+      sharedPreferencesUtil.saveBool('adUser', true);
+      showSubOrAdAlert();
     }
 
     return Scaffold(
@@ -252,33 +291,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     );
             }));
   }
-
-  // void _loadRewardedAd() {
-  //   RewardedAd.load(
-  //     adUnitId: AdHelper.rewardedAdUnitId,
-  //     request: AdRequest(),
-  //     rewardedAdLoadCallback: RewardedAdLoadCallback(
-  //       onAdLoaded: (ad) {
-  //         ad.fullScreenContentCallback = FullScreenContentCallback(
-  //           onAdDismissedFullScreenContent: (ad) {
-  //             setState(() {
-  //               ad.dispose();
-  //               _rewardedAd = null;
-  //             });
-  //             _loadRewardedAd();
-  //           },
-  //         );
-
-  //         setState(() {
-  //           _rewardedAd = ad;
-  //         });
-  //       },
-  //       onAdFailedToLoad: (err) {
-  //         print('Failed to load a rewarded ad: ${err.message}');
-  //       },
-  //     ),
-  //   );
-  // }
 
   Container reponseHelperWidget() {
     return Container(
@@ -424,8 +436,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> limitCheckAndSend() async {
     print('Limit Check Called');
-    if (totalSent > freeChatLimit && !isPremium) {
+
+    bool isAdUser = sharedPreferencesUtil.getBool('adUser');
+
+    if (totalSent > freeChatLimit && !isPremium && isAdUser == false) {
       // await showSubscriptionScreen();
+
       await showSubOrAdAlert();
       // Navigator.push(context,
       //     MaterialPageRoute(builder: (context) => SubscriptionScreen()));
@@ -462,6 +478,31 @@ class _ChatScreenState extends State<ChatScreen> {
 
     OpenAI.apiKey = await ApiService.getApiKey();
     String fullText = '';
+
+    bool hasTenMinutesPassed(DateTime savedTime) {
+      DateTime currentTime = DateTime.now();
+      Duration difference = currentTime.difference(savedTime);
+
+      print('Last Ad Time: $savedTime');
+      print('Current TIme: $currentTime');
+      print('Last Ad Played ${difference.inMinutes} ago');
+      return difference.inMinutes >= addGapInMin;
+    }
+
+    Future<DateTime> getLastAdTime() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      String? storedTime = await prefs.getString('lastAdTime');
+
+      if (storedTime == null) {
+        String curentTime = await getCurrentTime();
+        await prefs.setString('lastAdTime', curentTime);
+        storedTime = await prefs.getString('lastAdTime');
+        return DateTime.parse(storedTime!);
+      } else {
+        return DateTime.parse(storedTime);
+      }
+    }
 
 //Converting Context List
     List<OpenAIChatCompletionChoiceMessageModel> contextList =
@@ -513,7 +554,7 @@ class _ChatScreenState extends State<ChatScreen> {
           chatStreamSubscription.cancel();
         }
       }
-    }, onDone: () {
+    }, onDone: () async {
       print('Stream is Done');
       setState(() {
         if (fullText.isNotEmpty) {
@@ -524,6 +565,24 @@ class _ChatScreenState extends State<ChatScreen> {
         }
         isStreaming = false;
       });
+
+      //If user is AdUser and 10 min time passed after last ad then Show Intertial Ad
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool isAdUser = await prefs.getBool('adUser') ?? false;
+
+      //Check time after last ad
+      DateTime lastAdTime = await getLastAdTime();
+      bool isReadyForAd = hasTenMinutesPassed(lastAdTime);
+
+      if (isAdUser == true && isReadyForAd == true) {
+        //Display an Interstitial Ad
+        if (_interstitialAd != null) {
+          _interstitialAd?.show();
+          setLastAdTimeToCurrentTime();
+        } else {
+          print('Innterstial Ad is not Ready to show');
+        }
+      }
     });
 
     _replyStreamController.done;
