@@ -99,18 +99,6 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          //Reward Ad Button
-          // ElevatedButton(
-          //     onPressed: () {
-          //       _rewardedAd?.show(
-          //         onUserEarnedReward: (_, reward) {
-          //           // QuizManager.instance.useHint();
-          //         },
-          //       );
-          //     },
-          //     child: Text('Show Ad')),
-
-          // TODO: Display a banner when ready
           if (_bannerAd != null && adUser == true)
             Align(
               alignment: Alignment.topCenter,

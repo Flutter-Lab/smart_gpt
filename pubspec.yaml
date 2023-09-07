@@ -57,6 +57,8 @@ dependencies:
   translator_plus: ^1.0.1
   google_mobile_ads: ^3.0.0
   share_plus: ^7.1.0
+  flutter_tts: ^3.8.1
+  lottie: ^2.6.0
 
 
 dev_dependencies:
@@ -113,6 +115,7 @@ flutter:
     - assets/images/
     - assets/docs/
     - assets/icons/
+    - assets/animations/
 
 
 
