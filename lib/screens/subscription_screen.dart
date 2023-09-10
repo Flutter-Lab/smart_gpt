@@ -150,7 +150,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => TermsAndConditionMD()));
+                              builder: (context) => UserNoticeMD(
+                                    noticeLocation:
+                                        'assets/docs/terms_and_conditions.md',
+                                  )));
                     },
                   ),
                   SmallTextButton(

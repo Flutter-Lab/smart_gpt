@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_gpt_ai/widgets/text_widget.dart';
+import 'package:smart_gpt_ai/screens/settings_screen/settings_card.dart';
 import 'package:smart_gpt_ai/widgets/translate_language_dialog.dart';
 
 import '../../constants/constants.dart';
+import '../../docs/terms_and_condition.dart';
+import '../../services/subscription_service.dart';
 import '../../utilities/shared_prefs.dart';
+import 'settings_close_button.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
@@ -45,58 +48,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(
-                      Icons.cancel,
-                      color: Colors.white,
-                    ))),
-            Card(
-              color: ColorPallate.cardColor,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextWidget(
-                        label: 'Chat Points', fontWeight: FontWeight.normal),
-                    TextWidget(
-                        label: isPremium ? 'Unlimited' : '$chatPoints',
-                        fontWeight: FontWeight.normal),
-                  ],
-                ),
-              ),
+            SettingsCloseButton(),
+            SettingsCard(
+              icon: Icons.generating_tokens,
+              title: 'Chat Points',
+              trailing: isPremium ? 'Unlimited' : '$chatPoints',
             ),
-            Card(
-              color: ColorPallate.cardColor,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GestureDetector(
-                  onTap: () async {
-                    await TransLangDialog(context);
-
-                    await getTransLang();
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextWidget(
-                          label: 'Translate Language',
-                          fontWeight: FontWeight.normal),
-                      TextWidget(
-                          label:
-                              transLanguage != null ? transLanguage! : 'Select',
-                          fontWeight: FontWeight.normal),
-                    ],
-                  ),
-                ),
-              ),
+            SettingsCard(
+                icon: Icons.translate,
+                title: 'Translate Language',
+                trailing: transLanguage != null ? transLanguage! : 'Select',
+                onTap: () async {
+                  await TransLangDialog(context);
+                  await getTransLang();
+                }),
+            SettingsCard(
+              icon: Icons.do_disturb_alt_outlined,
+              title: 'Remove Ad',
+              trailing: '🚷',
+              onTap: () async {
+                Navigator.pop(context);
+                await SubscriptionService.showSubscriptionScreen(
+                    context: context);
+              },
+            ),
+            SettingsCard(
+              icon: Icons.policy_outlined,
+              title: 'Privacy Policy',
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => UserNoticeMD(
+                              noticeLocation: 'assets/docs/privacy_policy.md',
+                            )));
+              },
             ),
           ],
         ),
